@@ -1,0 +1,54 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @invitee.name %>
+</p>
+
+<p>
+  <strong>Relation:</strong>
+  <%= @invitee.relation %>
+</p>
+
+<p>
+  <strong>Number:</strong>
+  <%= @invitee.number %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @invitee.email %>
+</p>
+
+<p>
+  <strong>Address:</strong>
+  <%= @invitee.address %>
+</p>
+
+<p>
+  <strong>Phone:</strong>
+  <%= @invitee.phone %>
+</p>
+
+<p>
+  <strong>Response:</strong>
+  <%= @invitee.response %>
+</p>
+
+<p>
+  <strong>Arrival:</strong>
+  <%= @invitee.arrival %>
+</p>
+
+<p>
+  <strong>Created at:</strong>
+  <%= @invitee.created_at %>
+</p>
+
+<p>
+  <strong>Updated at:</strong>
+  <%= @invitee.updated_at %>
+</p>
+
+<%= link_to 'Edit', edit_invitee_path(@invitee) %> |
+<%= link_to 'Back', invitees_path %>
