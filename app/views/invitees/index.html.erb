@@ -1,6 +1,8 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Invitees</h1>
+<%= link_to 'Import', invitees_import_path %><br/>
+<%= link_to 'Export', invitees_export_path(:format => :csv) %>
 
 <table>
   <thead>
@@ -30,7 +32,7 @@
         <td><%= invitee.phone %></td>
         <td><%= invitee.response %></td>
         <td><%= invitee.arrival %></td>
-        <td><%= invitee.created_at %></td>
+        <td><%= invitee.created_at.strftime("%d - %B - %Y") %></td>
         <td><%= invitee.updated_at %></td>
         <td><%= link_to 'Show', invitee %></td>
         <td><%= link_to 'Edit', edit_invitee_path(invitee) %></td>

@@ -9,8 +9,6 @@ class CreateInvitees < ActiveRecord::Migration
       t.string :phone
       t.boolean :response
       t.boolean :arrival
-      t.date :created_at
-      t.date :updated_at
 
       t.timestamps null: false
     end

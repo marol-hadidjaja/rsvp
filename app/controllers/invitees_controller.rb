@@ -61,6 +61,52 @@ class InviteesController < ApplicationController
     end
   end
 
+  def import_form
+    respond_to do |format|
+      format.html { render :import_form }
+    end
+  end
+
+  def import
+    @errors = []
+    @success_count = 0
+    CSV.foreach(params[:invitees].tempfile,
+                :headers => true,
+                :converters => :all,
+                :header_converters => lambda { |h| h.downcase.gsub(' ', '_')}) do |row|
+      new_row = row.to_hash
+      @invitee = Invitee.where(email: new_row[:email]).first_or_create
+      unless @invitee.new_record?
+        logger.debug "--------------------------find record"
+        if @invitee.update_attributes(new_row)
+          @success_count += 1
+        else
+          binding.pry
+          @errors << { :name => row.to_hash['name'], :errors => @invitee.errors }
+        end
+      else
+        @invitee.attributes = new_row
+        if @invitee.save
+          @success_count += 1
+        else
+          @errors << { :name => row.to_hash['name'], :errors => @invitee.errors }
+        end
+      end
+    end
+
+    respond_to do |format|
+      format.html { render :import_form, :locals => { :message => 'message' } }
+    end
+  end
+
+  def export
+    @invitees = Invitee.all
+
+    respond_to do |format|
+      format.csv { send_data @invitees.to_csv, filename: "invitees-#{Date.today}.csv" }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_invitee
