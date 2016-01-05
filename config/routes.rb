@@ -1,9 +1,12 @@
 Rails.application.routes.draw do
+  devise_for :users, :controllers => { :sessions => "sessions" }
   resources :users
   resources :invitees
   get 'invitees_import' => 'invitees#import_form'
   get 'invitees_export' => 'invitees#export'
   post 'invitees_import' => 'invitees#import'
+  get 'send_invitation' => 'invitees#send_invitation'
+  get 'invitation' => 'invitees#invitation'
   root 'invitees#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

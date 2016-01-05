@@ -1,7 +1,8 @@
 <% logger.debug "----------------#{@errors.inspect}" %>
-<% if @errors && !@errors.length.empty? %>
+<% if @errors && !@errors.empty? %>
   <%= @errors.inspect %>
 <% end %>
+
 <%= form_tag('/invitees_import', :multipart => true) do %>
   <%= file_field_tag(:invitees) %>
   <%= submit_tag('Import') %>

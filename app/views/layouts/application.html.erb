@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Rsvp</title>
+    <title>RSVP</title>
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
     <%= csrf_meta_tags %>
   </head>
 
   <body>
+    <%= link_to "Home", root_path %>
     <%= link_to "Invitees", invitees_path %>
+    <%= link_to "Invitation", invitation_path %>
+    <%= link_to "Logout", destroy_user_session_path, method: :delete %>
     <%= yield %>
   </body>
 </html>

@@ -4,9 +4,9 @@
       <h2><%= pluralize(@invitee.errors.count, "error") %> prohibited this invitee from being saved:</h2>
 
       <ul>
-      <% @invitee.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
+        <% @invitee.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
       </ul>
     </div>
   <% end %>
@@ -25,7 +25,7 @@
   </div>
   <div class="field">
     <%= f.label :email %><br>
-    <%= f.text_field :email %>
+    <%= f.email_field :email %>
   </div>
   <div class="field">
     <%= f.label :address %><br>
@@ -34,14 +34,6 @@
   <div class="field">
     <%= f.label :phone %><br>
     <%= f.text_field :phone %>
-  </div>
-  <div class="field">
-    <%= f.label :response %><br>
-    <%= f.check_box :response %>
-  </div>
-  <div class="field">
-    <%= f.label :arrival %><br>
-    <%= f.check_box :arrival %>
   </div>
   <div class="actions">
     <%= f.submit %>

@@ -1,3 +1,5 @@
+require 'csv'
+
 class InviteesController < ApplicationController
   before_action :set_invitee, only: [:show, :edit, :update, :destroy]
 
@@ -75,22 +77,32 @@ class InviteesController < ApplicationController
                 :converters => :all,
                 :header_converters => lambda { |h| h.downcase.gsub(' ', '_')}) do |row|
       new_row = row.to_hash
-      @invitee = Invitee.where(email: new_row[:email]).first_or_create
-      unless @invitee.new_record?
+      #@invitee = Invitee.where(email: new_row[:email]).first_or_create
+      @invitees = Invitee.where(email: new_row[:email])
+      unless @invitees.empty?
         logger.debug "--------------------------find record"
+        @invitee = @invitees.first
         if @invitee.update_attributes(new_row)
           @success_count += 1
         else
-          binding.pry
-          @errors << { :name => row.to_hash['name'], :errors => @invitee.errors }
+          @errors << { :name => new_row['name'], :errors => @invitee.errors }
         end
       else
-        @invitee.attributes = new_row
+        @invitee = Invitee.new(new_row)
+        #@invitee.attributes = new_row
         if @invitee.save
           @success_count += 1
         else
-          @errors << { :name => row.to_hash['name'], :errors => @invitee.errors }
+          @errors << { :name => new_row['name'], :errors => @invitee.errors }
         end
+      end # close check @invitee is new record
+
+      @users = User.where(email: new_row['email'])
+      # create user for login and retrieve invitation
+      if @users.empty?
+        logger.debug "-------------------------------------not find user #{ new_row.inspect }"
+        @user = User.create(email: new_row['email'], password: '12345678', password_confirmation: '12345678')
+        logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
       end
     end
 
@@ -104,6 +116,18 @@ class InviteesController < ApplicationController
 
     respond_to do |format|
       format.csv { send_data @invitees.to_csv, filename: "invitees-#{Date.today}.csv" }
+    end
+  end
+
+  def send_invitation
+    InviteeMailer.invitation_email.deliver
+  end
+
+  def invitation
+    @invitation = Invitee.find_by_email(current_user.email)
+    logger.debug "------------------------------#{ @invitation.inspect }"
+    respond_to do |format|
+      format.html { render :invitation }
     end
   end
 
