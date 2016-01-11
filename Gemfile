@@ -29,6 +29,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'pry'
 gem 'devise'
 gem 'cancan'
+gem 'rqrcode'
+gem 'google-api-client', '0.9.pre3', require: 'google/apis/calendar_v3'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

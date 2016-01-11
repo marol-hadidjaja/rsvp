@@ -7,6 +7,15 @@ Rails.application.routes.draw do
   post 'invitees_import' => 'invitees#import'
   get 'send_invitation' => 'invitees#send_invitation'
   get 'invitation' => 'invitees#invitation'
+  resources :invitees do
+    member do
+      get 'update_coming', :defaults => { :format => :json }
+      get 'update_rsvp'
+    end
+  end
+  get 'oauth2callback' => 'invitees#oauth2callback'
+  get 'googlecalendar' => 'invitees#calendars'
+
   root 'invitees#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

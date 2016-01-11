@@ -1,5 +1,27 @@
+<style type="text/css">
+  table {
+    border-width: 0;
+    border-style: none;
+    border-color: #0000ff;
+    border-collapse: collapse;
+  }
+
+  td {
+    border-left: solid 3px #000;
+    padding: 0;
+    margin: 0;
+    width: 0px;
+    height: 3px;
+  }
+
+  td.black { border-color: #000; }
+  td.white { border-color: #fff; }
+</style>
+
 <% unless @invitation.nil? %>
   INVITATION<br/>
+  for : <%= @invitation.name %><br/>
+  <%= raw @qr.as_html %>
 <% else %>
   Can't access invitation
 <% end %>
