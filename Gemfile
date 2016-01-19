@@ -31,6 +31,7 @@ gem 'devise'
 gem 'cancan'
 gem 'rqrcode'
 gem 'google-api-client', '0.9.pre3', require: 'google/apis/calendar_v3'
+gem 'multi_json'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
