@@ -11,10 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151116154641) do
+ActiveRecord::Schema.define(version: 20160307152713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "events", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "name"
+    t.text     "description"
+    t.text     "location"
+    t.datetime "start"
+    t.datetime "end"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "events", ["user_id"], name: "index_events_on_user_id", using: :btree
 
   create_table "invitees", force: :cascade do |t|
     t.string   "name"
@@ -28,6 +41,16 @@ ActiveRecord::Schema.define(version: 20151116154641) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "legacy_session_table", force: :cascade do |t|
+    t.string   "session_id", null: false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "legacy_session_table", ["session_id"], name: "index_legacy_session_table_on_session_id", unique: true, using: :btree
+  add_index "legacy_session_table", ["updated_at"], name: "index_legacy_session_table_on_updated_at", using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"

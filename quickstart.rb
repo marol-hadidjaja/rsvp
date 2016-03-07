@@ -62,6 +62,7 @@ calendar_api = client.discovered_api('calendar', 'v3')
 puts "---#{@set_event.body}--"
 =end
 
+=begin
 @edit_event = client.execute(:api_method => calendar_api.events.get,
                              :parameters => { 'calendarId' => 'primary', 'eventId' => '1bnus9hfg1vbuo74lmnrdmdkoc' },
                              :headers => { 'Content-Type' => 'application/json' })
@@ -70,9 +71,9 @@ result = client.execute(:api_method => calendar_api.events.patch,
                         :parameters => { 'calendarId' => 'primary', 'eventId' => '1bnus9hfg1vbuo74lmnrdmdkoc', 'sendNotifications' => true },
                         :body => JSON.dump(@edit_event_2),
                         :headers => { 'Content-Type' => 'application/json' })
+=end
 # error.errors => not empty
 
-=begin
 # Fetch the next 10 events for the user
 results = client.execute!(
   :api_method => calendar_api.events.list,
@@ -89,4 +90,3 @@ results.data.items.each do |event|
   start = event.start.date || event.start.date_time
   puts "- #{event.summary} (#{start})"
 end
-=end

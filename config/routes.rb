@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   devise_for :users, :controllers => { :sessions => "sessions" }
   resources :users
   resources :invitees
+  resources :events
   get 'invitees_import' => 'invitees#import_form'
   get 'invitees_export' => 'invitees#export'
   post 'invitees_import' => 'invitees#import'
@@ -13,7 +14,8 @@ Rails.application.routes.draw do
       get 'update_rsvp'
     end
   end
-  get 'oauth2callback' => 'invitees#oauth2callback'
+  get 'oauth2callback' => 'events#oauth2callback'
+  get 'authorize' => 'events#authorize'
   get 'googlecalendar' => 'invitees#calendars'
 
   root 'invitees#index'

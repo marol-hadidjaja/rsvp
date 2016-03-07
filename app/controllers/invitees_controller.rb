@@ -7,7 +7,11 @@ class InviteesController < ApplicationController
   # GET /invitees
   # GET /invitees.json
   def index
-    @invitees = Invitee.all
+    if Event.where(user_id: current_user.id).empty?
+      redirect_to new_event_path
+    else
+      @invitees = Invitee.all
+    end
   end
 
   # GET /invitees/1
@@ -139,9 +143,13 @@ class InviteesController < ApplicationController
   def invitation
     @invitation = Invitee.find_by_email(current_user.email)
     #@qr = RQRCode::QRCode.new( 'https://github.com/whomwah/rqrcode', :size => 4, :level => :h )
-    @qr = RQRCode::QRCode.new("http://192.168.1.8:3000/invitees/#{ @invitation.id }/update_coming", :size => 20, :level => :h)
-    respond_to do |format|
-      format.html { render :invitation }
+    unless @invitation.nil?
+      @qr = RQRCode::QRCode.new("http://192.168.1.8:3000/invitees/#{ @invitation.id }/update_coming", :size => 20, :level => :h)
+      respond_to do |format|
+        format.html { render :invitation }
+      end
+    else
+      "Invitation not found"
     end
   end
 
@@ -202,6 +210,6 @@ class InviteesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
-      params.require(:invitee).permit(:name, :relation, :number, :email, :address, :phone, :response, :arrival, :created_at, :updated_at)
+      params.require(:invitee).permit(:name, :relation, :number, :email, :address, :phone, :response, :arrival)
     end
 end

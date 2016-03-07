@@ -30,7 +30,12 @@ gem 'pry'
 gem 'devise'
 gem 'cancan'
 gem 'rqrcode'
-gem 'google-api-client', '0.9.pre3', require: 'google/apis/calendar_v3'
+#gem 'google-api-client', '0.7.1', require: 'google/api_client'
+gem 'google-api-client'
+gem 'googleauth'
+gem 'redis'
+gem 'activerecord-session_store'
+#  google/apis/calendar_v3
 gem 'multi_json'
 
 # Use ActiveModel has_secure_password
