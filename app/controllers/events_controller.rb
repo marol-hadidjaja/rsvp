@@ -87,14 +87,18 @@ class EventsController < ApplicationController
 
   def create
     unless session.has_key?(:credentials)
+      session[:event] = event_params
       redirect_to('/oauth2callback')
     else
-      @event = Event.new(event_params)
-      #@event.start = @event.end = DateTime.now
-      @event.start = @event.end = DateTime.new(2016, 10, 8, 8, 0, 0, '+7')
-      @event.user_id = current_user.id
+      if session[:event]
+        @event = Event.new(session[:event])
+      else
+        @event = Event.new(event_params)
+        @event.user_id = current_user.id
+      end
 
       respond_to do |format|
+        logger.debug "----------------------------#{session[:credentials].inspect}"
         if @event.save
           #client = Google::APIClient.new(:application_name => APPLICATION_NAME)
           client_opts = JSON.parse(session[:credentials])
@@ -113,7 +117,6 @@ class EventsController < ApplicationController
                    time_zone: 'Asia/Bangkok' },
             guestsCanInviteOthers: false
           })
-          # @event.end.to_datetime.rfc3339,
 
           logger.debug "------------------------------------#{@new_event.inspect}"
           #logger.debug "------------------------------------start: #{@new_event.start['dateTime'].class.name}"
@@ -129,11 +132,12 @@ class EventsController < ApplicationController
 =end
           if result = client.insert_event('primary', @new_event, send_notifications: true)
             logger.debug "--------------------------#{result.inspect}"
+            session.delete(:event)
             format.html { redirect_to invitees_path }
           end
         else
           format.html { render :new }
-          format.json { render json: @invitee.errors, status: :unprocessable_entity }
+          format.json { render json: @event.errors, status: :unprocessable_entity }
         end
       end
     end
@@ -175,7 +179,11 @@ class EventsController < ApplicationController
       auth_client.client_secret = nil
       logger.debug "----------------------------auth_client: #{auth_client.inspect}"
       session[:credentials] = auth_client.to_json
-      redirect_to('/events')
+      if session[:event]
+        redirect_to controller: "events", actions: "create"
+      else
+        redirect_to('/')
+      end
     end
 =begin
     target_url = Google::Auth::WebUserAuthorizer.handle_auth_callback_deferred(request)
@@ -213,7 +221,12 @@ class EventsController < ApplicationController
   private
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      params.require(:event).permit(:name, :description, :location)
+      start_time = params[:event][:start].to_datetime
+      params[:event][:start] = DateTime.new(start_time.year, start_time.month, start_time.day, start_time.hour, start_time.minute, start_time.second, '+7')
+      end_time = params[:event][:end].to_datetime
+      params[:event][:end] = DateTime.new(end_time.year, end_time.month, end_time.day, end_time.hour, end_time.minute, end_time.second, '+7')
+
+      params.require(:event).permit(:name, :description, :location, :start, :end, :user_id)
     end
 
     def setgoogleauth

@@ -1,6 +1,7 @@
 <h1>Events#new</h1>
 
 <%= form_for(@event) do |f| %>
+  <%= f.hidden_field :user_id, value: current_user.id %>
   <div class="field">
     <%= f.label :name %><br />
     <%= f.text_field :name, autofocus: true %>
@@ -30,3 +31,13 @@
     <%= f.submit "Create" %>
   </div>
 <% end %>
+
+<script>
+  $(document).ready(function(){
+    var d = new Date()
+    $('#event_start, #event_end').fdatepicker({
+      format: 'dd-mm-yyyy hh:ii',
+      disableDblClickSelection: true,
+      pickTime: true })
+  })
+</script>

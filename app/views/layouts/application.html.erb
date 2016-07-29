@@ -4,7 +4,15 @@
     <title>RSVP</title>
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+
+    <%= stylesheet_link_tag '/stylesheets/foundation.min.css', '/stylesheets/foundation-datepicker.min.css' %>
+    <%= javascript_include_tag '/javascripts/jquery.js', '/javascripts/foundation.min.js', '/javascripts/foundation-datepicker.min.js' %>
     <%= csrf_meta_tags %>
+    <script>
+      $(document).ready(function(){
+        $(document).foundation();
+      });
+    </script>
   </head>
 
   <body>
