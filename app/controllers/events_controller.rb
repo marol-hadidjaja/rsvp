@@ -79,6 +79,11 @@ class EventsController < ApplicationController
       puts "Events created: #{result.inspect}"
 =end
     #end
+    if Event.all.empty?
+      redirect_to new_event_path
+    else
+      @events = Event.all
+    end
   end
 
   def new
@@ -94,19 +99,23 @@ class EventsController < ApplicationController
         @event = Event.new(session[:event])
       else
         @event = Event.new(event_params)
-        @event.user_id = current_user.id
       end
 
       respond_to do |format|
-        logger.debug "----------------------------#{session[:credentials].inspect}"
+        # logger.debug "----------------------------#{session[:credentials].inspect}"
         if @event.save
           #client = Google::APIClient.new(:application_name => APPLICATION_NAME)
+=begin
+          # RIGHT
           client_opts = JSON.parse(session[:credentials])
           auth_client = Signet::OAuth2::Client.new(client_opts)
           client = Google::Apis::CalendarV3::CalendarService.new
           client.authorization = auth_client
+=end
           #client.authorization = authorize
           #calendar_api = client.discovered_api('calendar', 'v3')
+=begin
+          # RIGHT
           @new_event = Google::Apis::CalendarV3::Event.new({
             summary: @event.name,
             description: @event.description,
@@ -115,12 +124,12 @@ class EventsController < ApplicationController
                      time_zone: 'Asia/Bangkok' },
                      end: { date_time: @event.end.to_datetime,
                    time_zone: 'Asia/Bangkok' },
-            guestsCanInviteOthers: false
+            guestsCanInviteOthers: false,
+            guestsCanSeeOtherGuests: false
           })
 
           logger.debug "------------------------------------#{@new_event.inspect}"
-          #logger.debug "------------------------------------start: #{@new_event.start['dateTime'].class.name}"
-          #logger.debug "------------------------------------end: #{@new_event.end['dateTime'].class.name}"
+=end
 =begin
           if @g_event = client.execute(:api_method => calendar_api.events.insert,
                                         :parameters => { 'calendarId' => 'primary', 'sendNotifications' => true },
@@ -130,10 +139,19 @@ class EventsController < ApplicationController
             format.html { redirect_to invitees_path }
           end
 =end
+=begin
+          # RIGHT
           if result = client.insert_event('primary', @new_event, send_notifications: true)
             logger.debug "--------------------------#{result.inspect}"
             session.delete(:event)
             format.html { redirect_to invitees_path }
+          end
+=end
+          if insert_event(@event) == 1
+            format.html { redirect_to event_invitees_path(@event) }
+          else
+            format.html { render :new }
+            format.json { render json: @event.errors, status: :unprocessable_entity}
           end
         else
           format.html { render :new }
@@ -176,11 +194,22 @@ class EventsController < ApplicationController
     else
       auth_client.code = request['code']
       auth_client.fetch_access_token!
-      auth_client.client_secret = nil
+      # auth_client.client_secret = nil
       logger.debug "----------------------------auth_client: #{auth_client.inspect}"
       session[:credentials] = auth_client.to_json
       if session[:event]
-        redirect_to controller: "events", actions: "create"
+        event = Event.new(session[:event])
+        if event.save
+          respond_to do |format|
+            if insert_event(event) == 1
+              format.html { redirect_to event_invitees_path(event) }
+            else
+              format.html { render :new }
+              format.json { render json: event.errors, status: :unprocessable_entity}
+            end
+          end
+        end
+        # redirect_to controller: "events", actions: "create"
       else
         redirect_to('/')
       end
@@ -221,12 +250,8 @@ class EventsController < ApplicationController
   private
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      start_time = params[:event][:start].to_datetime
-      params[:event][:start] = DateTime.new(start_time.year, start_time.month, start_time.day, start_time.hour, start_time.minute, start_time.second, '+7')
-      end_time = params[:event][:end].to_datetime
-      params[:event][:end] = DateTime.new(end_time.year, end_time.month, end_time.day, end_time.hour, end_time.minute, end_time.second, '+7')
-
-      params.require(:event).permit(:name, :description, :location, :start, :end, :user_id)
+      event_param = params.require(:event).permit(:name, :description, :location, :start, :end, :user_id)
+      change_to_wib(event_param)
     end
 
     def setgoogleauth
@@ -283,5 +308,46 @@ class EventsController < ApplicationController
       end
       puts "credentials: #{credentials.inspect}"
       credentials
+    end
+
+    def change_to_wib(event_param)
+      start_time = event_param[:start].to_datetime
+      event_param[:start] = DateTime.new(start_time.year, start_time.month, start_time.day,
+                                         start_time.hour, start_time.minute, start_time.second, '+7')
+      end_time = event_param[:end].to_datetime
+      event_param[:end] = DateTime.new(end_time.year, end_time.month, end_time.day,
+                                       end_time.hour, end_time.minute, end_time.second, '+7')
+      event_param
+    end
+
+    def insert_event(event)
+      client_opts = JSON.parse(session[:credentials])
+      auth_client = Signet::OAuth2::Client.new(client_opts)
+      client = Google::Apis::CalendarV3::CalendarService.new
+      client.authorization = auth_client
+      #client.authorization = authorize
+      #calendar_api = client.discovered_api('calendar', 'v3')
+      new_event = Google::Apis::CalendarV3::Event.new({
+        summary: event.name,
+        description: event.description,
+        location: event.location,
+        start: { date_time: event.start.to_datetime,
+                 time_zone: 'Asia/Bangkok' },
+                 end: { date_time: event.end.to_datetime,
+               time_zone: 'Asia/Bangkok' },
+        guestsCanInviteOthers: false,
+        guestsCanSeeOtherGuests: false
+      })
+
+      logger.debug "------------------------------------#{new_event.inspect}"
+      if result = client.insert_event('primary', new_event, send_notifications: true)
+        logger.debug "--------------------------#{result.inspect}"
+        event.event_id = result.id
+        event.save
+        session.delete(:event)
+        1
+      else
+        0
+      end
     end
 end

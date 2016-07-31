@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20160307152713) do
   create_table "events", force: :cascade do |t|
     t.integer  "user_id"
     t.string   "name"
+    t.string   "event_id"
     t.text     "description"
     t.text     "location"
     t.datetime "start"
@@ -30,6 +31,7 @@ ActiveRecord::Schema.define(version: 20160307152713) do
   add_index "events", ["user_id"], name: "index_events_on_user_id", using: :btree
 
   create_table "invitees", force: :cascade do |t|
+    t.integer  "event_id"
     t.string   "name"
     t.string   "relation"
     t.integer  "number"
@@ -41,6 +43,8 @@ ActiveRecord::Schema.define(version: 20160307152713) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "invitees", ["event_id"], name: "index_invitees_on_event_id", using: :btree
 
   create_table "legacy_session_table", force: :cascade do |t|
     t.string   "session_id", null: false

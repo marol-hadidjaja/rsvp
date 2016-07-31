@@ -3,6 +3,7 @@ class CreateEvents < ActiveRecord::Migration
     create_table :events do |t|
       t.references :user, :index => true
       t.string :name
+      t.string :event_id
       t.text :description
       t.text :location
       t.datetime :start

@@ -1,24 +1,25 @@
 Rails.application.routes.draw do
   devise_for :users, :controllers => { :sessions => "sessions" }
   resources :users
-  resources :invitees
-  resources :events
-  get 'invitees_import' => 'invitees#import_form'
-  get 'invitees_export' => 'invitees#export'
-  post 'invitees_import' => 'invitees#import'
-  get 'send_invitation' => 'invitees#send_invitation'
-  get 'invitation' => 'invitees#invitation'
-  resources :invitees do
-    member do
-      get 'update_coming', :defaults => { :format => :json }
-      get 'update_rsvp'
+  resources :events, shallow: true do
+    resources :invitees, shallow: true do
+      member do
+        get 'update_coming', :defaults => { :format => :json }
+        get 'update_rsvp'
+      end
     end
+    get 'invitees/import' => 'invitees#import_form'
+    post 'invitees/import' => 'invitees#import'
+    get 'invitees/export' => 'invitees#export'
+    get 'invitees/invitation' => 'invitees#invitation'
+    get 'invitees/send_invitation' => 'invitees#send_invitation'
   end
+
   get 'oauth2callback' => 'events#oauth2callback'
   get 'authorize' => 'events#authorize'
   get 'googlecalendar' => 'invitees#calendars'
 
-  root 'invitees#index'
+  root 'events#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

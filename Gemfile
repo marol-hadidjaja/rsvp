@@ -35,6 +35,7 @@ gem 'google-api-client'
 gem 'googleauth'
 gem 'redis'
 gem 'activerecord-session_store'
+gem 'roo', '~> 2.4.0'
 #  google/apis/calendar_v3
 gem 'multi_json'
 

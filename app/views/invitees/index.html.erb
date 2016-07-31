@@ -1,9 +1,9 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Invitees</h1>
-<%= link_to 'New Invitee', new_invitee_path %><br/>
-<%= link_to 'Import', invitees_import_path %><br/>
-<%= link_to 'Export', invitees_export_path(:format => :csv) %><br/>
+<%= link_to 'New Invitee', new_event_invitee_path %><br/>
+<%= link_to 'Import', event_invitees_import_path %><br/>
+<%= link_to 'Export', event_invitees_export_path(:format => :csv) %><br/>
 
 <% unless @invitees.empty? %>
   <table>
@@ -39,7 +39,7 @@
           <td><%= link_to 'Show', invitee %></td>
           <td><%= link_to 'Edit', edit_invitee_path(invitee) %></td>
           <td><%= link_to 'Destroy', invitee, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-          <td><%= link_to 'Send', send_invitation_path(email: invitee.email) %></td>
+          <td><%= link_to 'Send', event_invitees_send_invitation_path(email: invitee.email) %></td>
         </tr>
       <% end %>
     </tbody>

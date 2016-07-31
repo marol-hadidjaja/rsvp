@@ -1,6 +1,7 @@
 class CreateInvitees < ActiveRecord::Migration
   def change
     create_table :invitees do |t|
+      t.references :event, index: true
       t.string :name
       t.string :relation
       t.integer :number

@@ -1,9 +1,15 @@
-<% logger.debug "----------------#{@errors.inspect}" %>
-<% if @errors && !@errors.empty? %>
-  <%= @errors.inspect %>
+<% if @result_import.present? %>
+  <% unless @result_import[:success].empty? %>
+    <%= @result_import[:success].length %> invitee(s) imported<br/>
+  <% end %>
+
+  <% @result_import[:errors].each do |r| %>
+    <%= r[:email] %>: <%= r[:errors].map{ |k, v| "#{ k } #{ v.join(', ') }" }.join('; ').html_safe %>
+    <br/>
+  <% end %>
 <% end %>
 
-<%= form_tag('/invitees_import', :multipart => true) do %>
+<%= form_tag(event_invitees_import_path(@event), :multipart => true) do %>
   <%= file_field_tag(:invitees) %>
   <%= submit_tag('Import') %>
 <% end %>

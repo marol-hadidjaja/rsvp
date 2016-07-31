@@ -1,8 +1,10 @@
 require 'csv'
+require 'roo'
 
 class InviteesController < ApplicationController
   before_action :set_invitee, only: [:show, :edit, :update, :destroy]
   before_filter :authenticate_user!, :except => [:update_coming]
+  before_action :set_event, only: [:index, :new, :create]
 
   # GET /invitees
   # GET /invitees.json
@@ -21,7 +23,7 @@ class InviteesController < ApplicationController
 
   # GET /invitees/new
   def new
-    @invitee = Invitee.new
+    @invitee = Invitee.new(event_id: @event.id)
   end
 
   # GET /invitees/1/edit
@@ -75,20 +77,119 @@ class InviteesController < ApplicationController
   def destroy
     @invitee.destroy
     respond_to do |format|
-      format.html { redirect_to invitees_url, notice: 'Invitee was successfully destroyed.' }
+      format.html { redirect_to event_invitees_url(@invitee.event), notice: 'Invitee was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   def import_form
+    @event = Event.find(params[:event_id])
     respond_to do |format|
       format.html { render :import_form }
     end
   end
 
   def import
-    @errors = []
-    @success_count = 0
+    @event = Event.find(params[:event_id])
+=begin
+    @result_import = { success: 0, errors: [] }
+    spreadsheet = open_spreadsheet(params[:import_file])
+    spreadsheet.sheets.each do |sheet| # looping all sheet
+      spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
+      header = spreadsheet.row(1).map{ |h| h.downcase }
+      header_mapping = { 'nama depan': 'first_name',
+                         'nama belakang': 'last_name',
+                         'tempat lahir': 'birth_place',
+                         'tanggal lahir': 'date_of_birth',
+                         'alamat': 'address',
+                         'email': 'email',
+                         'nomor rumah': 'home_phone',
+                         'nomor handphone': 'mobile_phone',
+                         'nama kartu': 'name_on_card',
+                         'status': 'marital_status',
+                         'tanggal gabung': 'join_date',
+                         'paket': 'package_id',
+                         'nomor identitas': 'id_card_number',
+                         'tipe identitas': 'id_card_type',
+                         'gender': 'gender',
+                         'tanggal gabung': 'join_date' }
+      new_header = header.map{ |h| header_mapping[h.to_sym] }
+      (2..spreadsheet.last_row).each do |i| # looping all excel data
+        row = Hash[[new_header, spreadsheet.row(i)].transpose]
+        if row["gender"].downcase == "pria"
+          row["gender"] = "P"
+        else
+          row["gender"] = "W"
+        end
+
+        row["marital_status"] = StaticData::MaritalStatus.select{ |k, v| k.downcase == row["marital_status"].downcase }.first[1]
+        row["id_card_type"] = StaticData::IdCardType.select{ |k, v| k.downcase == row["id_card_type"].downcase }.first[1]
+        if row["join_date"].nil?
+          row["join_date"] = Date.today
+        end
+
+        member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
+        member.attributes = row.reject{ |k, r| k == "id_card_number" || k.nil? } unless member.new_record?
+        unless member.save
+          @result_import[:errors] << { id_card_number: row['id_card_number'], errors: member.errors.messages }
+        else
+          @result_import[:success] += 1
+        end
+      end
+    end
+=end
+    @result_import = { errors: [], success: [] }
+    spreadsheet = open_spreadsheet(params[:invitees])
+    spreadsheet.sheets.each do |sheet| # looping all sheet
+      spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
+      header = spreadsheet.row(1).map{ |h| h.downcase }
+      header_mapping = { 'nama': 'name',
+                         'email': 'email',
+                         'relasi': 'relation',
+                         'jumlah': 'number',
+                         'alamat': 'address',
+                         'telepon': 'phone' }
+      new_header = header.map{ |h| header_mapping[h.to_sym] }
+      (2..spreadsheet.last_row).each do |i| # looping all excel data
+        row = Hash[[new_header, spreadsheet.row(i)].transpose]
+        # member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
+        invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
+        invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
+        unless invitee.save
+          @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
+        else
+          @result_import[:success] << { email: row['email'] }
+          @users = User.where(email: row['email'])
+          # create user for login and retrieve invitation
+          if @users.empty?
+            logger.debug "-------------------------------------not find user #{ row.inspect }"
+            @user = User.create(email: row['email'], password: '12345678', password_confirmation: '12345678')
+            logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+          end
+        end
+      end # looping all excel data
+    end # looping all sheets
+
+    client_opts = JSON.parse(session[:credentials])
+    auth_client = Signet::OAuth2::Client.new(client_opts)
+    client = Google::Apis::CalendarV3::CalendarService.new
+    client.authorization = auth_client
+
+    g_event = client.get_event('primary', @event.event_id)
+=begin
+    if g_event.attendees.nil?
+      g_event.attendees = []
+    end
+=end
+
+    #must_add = @result_import[:success].map(&:email) - g_event.attendees.map(&:email)
+    #must_delete = g_event.attendees.map(&:email) - @result_import[:success].map(&:email)
+
+    g_event.attendees = @result_import[:success]
+
+    result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+    print result.updated
+=begin
     CSV.foreach(params[:invitees].tempfile,
                 :headers => true,
                 :converters => :all,
@@ -122,9 +223,10 @@ class InviteesController < ApplicationController
         logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
       end
     end
+=end
 
     respond_to do |format|
-      format.html { render :import_form, :locals => { :message => 'message' } }
+      format.html { render :import_form }
     end
   end
 
@@ -210,6 +312,20 @@ class InviteesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
-      params.require(:invitee).permit(:name, :relation, :number, :email, :address, :phone, :response, :arrival)
+      params.require(:invitee)
+        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :response, :arrival)
+    end
+
+    def set_event
+      @event = Event.find(params[:event_id])
+    end
+
+    def open_spreadsheet(file)
+      case File.extname(file.original_filename)
+      when '.csv' then Roo::CSV.new(file.path)
+      when '.xls' then Roo::Excel.new(file.path)
+      when '.xlsx' then Roo::Excelx.new(file.path)
+      else raise "Unknown file type: #{file.original_filename}"
+      end
     end
 end

@@ -1,4 +1,4 @@
-<%= form_for(@invitee) do |f| %>
+<%= form_for [@event, @invitee] do |f| %>
   <% if @invitee.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@invitee.errors.count, "error") %> prohibited this invitee from being saved:</h2>
@@ -11,9 +11,10 @@
     </div>
   <% end %>
 
+  <%= f.hidden_field :event_id %>
   <div class="field">
     <%= f.label :name %><br>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, autofocus: true %>
   </div>
   <div class="field">
     <%= f.label :relation %><br>
