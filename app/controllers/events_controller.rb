@@ -79,8 +79,14 @@ class EventsController < ApplicationController
       puts "Events created: #{result.inspect}"
 =end
     #end
-    if Event.all.empty?
-      redirect_to new_event_path
+    if current_user.has_role?("admin") || current_user.has_role?("receptionist")
+      if Event.all.empty?
+        redirect_to new_event_path
+      else
+        @events = Event.all
+      end
+    # elsif current_user.has_role?("receptionist")
+    #  redirect_to event_invitees_path(current_user.event)
     else
       @events = Event.all
     end

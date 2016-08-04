@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users, :controllers => { :sessions => "sessions" }
   resources :users
+  get 'invitees/relations' => 'invitees#relations'
   resources :events, shallow: true do
     resources :invitees, shallow: true do
       member do

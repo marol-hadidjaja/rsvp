@@ -1,5 +1,6 @@
 class Invitee < ActiveRecord::Base
   belongs_to :event
+  belongs_to :user, dependent: :destroy
   validates_presence_of     :email, :name, :number, :relation
   validates_length_of       :email, :within => 3..100
   validates_uniqueness_of   :email, :case_sensitive => false

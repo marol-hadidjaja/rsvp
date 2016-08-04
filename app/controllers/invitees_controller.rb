@@ -1,5 +1,10 @@
 require 'csv'
 require 'roo'
+require 'google/api_client/client_secrets'
+require 'google/apis/calendar_v3'
+require 'googleauth'
+#require 'googleauth/web_user_authorizer'
+#require 'googleauth/stores/redis_token_store'
 
 class InviteesController < ApplicationController
   before_action :set_invitee, only: [:show, :edit, :update, :destroy]
@@ -42,7 +47,33 @@ class InviteesController < ApplicationController
         # create user for login and retrieve invitation
         if @users.empty?
           @user = User.create(email: invitee_params['email'], password: '12345678', password_confirmation: '12345678')
+          @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
           logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+        else
+          @user = @users.first
+          @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+        end
+
+        unless session.has_key?(:credentials)
+          session[:new_attendees] = { email: invitee_params['email'] }
+          redirect_to oauth2callback_path
+        else
+          client_opts = JSON.parse(session[:credentials])
+          auth_client = Signet::OAuth2::Client.new(client_opts)
+          client = Google::Apis::CalendarV3::CalendarService.new
+          client.authorization = auth_client
+
+          g_event = client.get_event('primary', @event.event_id)
+          # attendees = [ { email: 'a@b.com' } ]
+          if session[:new_attendees]
+            attendees = session[:new_attendees]
+            session.delete(:new_attendees)
+          else
+            attendees = { email: invitee_params['email'] }
+          end
+          g_event.attendees.push(attendees)
+
+          result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
         end
         format.html { redirect_to @invitee, notice: 'Invitee was successfully created.' }
         format.json { render :show, status: :created, location: @invitee }
@@ -61,7 +92,7 @@ class InviteesController < ApplicationController
     respond_to do |format|
       if @invitee.update(invitee_params)
         @user = User.find_by_email(prev_email)
-        if @user.update_attributes({ email: invitee_params.email })
+        if @user.update_attributes({ email: invitee_params[:email] })
           format.html { redirect_to @invitee, notice: 'Invitee was successfully updated.' }
           format.json { render :show, status: :ok, location: @invitee }
         end
@@ -76,6 +107,28 @@ class InviteesController < ApplicationController
   # DELETE /invitees/1.json
   def destroy
     @invitee.destroy
+    unless session.has_key?(:credentials)
+      session[:delete_attendees] = { email: @invitee.email }
+      redirect_to oauth2callback_path
+    else
+      @event = Event.find(@invitee.event)
+      client_opts = JSON.parse(session[:credentials])
+      auth_client = Signet::OAuth2::Client.new(client_opts)
+      client = Google::Apis::CalendarV3::CalendarService.new
+      client.authorization = auth_client
+
+      g_event = client.get_event('primary', @event.event_id)
+      # attendees = [ { email: 'a@b.com' } ]
+      if session[:delete_attendees]
+        attendees = session[:delete_attendees]
+        session.delete(:delete_attendees)
+      else
+        attendees = { email: @invitee.email }
+      end
+      g_event.attendees.delete_if{ |attendee| attendee.email == attendees[:email] }
+
+      result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+    end
     respond_to do |format|
       format.html { redirect_to event_invitees_url(@invitee.event), notice: 'Invitee was successfully destroyed.' }
       format.json { head :no_content }
@@ -91,142 +144,60 @@ class InviteesController < ApplicationController
 
   def import
     @event = Event.find(params[:event_id])
-=begin
-    @result_import = { success: 0, errors: [] }
-    spreadsheet = open_spreadsheet(params[:import_file])
-    spreadsheet.sheets.each do |sheet| # looping all sheet
-      spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
-      header = spreadsheet.row(1).map{ |h| h.downcase }
-      header_mapping = { 'nama depan': 'first_name',
-                         'nama belakang': 'last_name',
-                         'tempat lahir': 'birth_place',
-                         'tanggal lahir': 'date_of_birth',
-                         'alamat': 'address',
-                         'email': 'email',
-                         'nomor rumah': 'home_phone',
-                         'nomor handphone': 'mobile_phone',
-                         'nama kartu': 'name_on_card',
-                         'status': 'marital_status',
-                         'tanggal gabung': 'join_date',
-                         'paket': 'package_id',
-                         'nomor identitas': 'id_card_number',
-                         'tipe identitas': 'id_card_type',
-                         'gender': 'gender',
-                         'tanggal gabung': 'join_date' }
-      new_header = header.map{ |h| header_mapping[h.to_sym] }
-      (2..spreadsheet.last_row).each do |i| # looping all excel data
-        row = Hash[[new_header, spreadsheet.row(i)].transpose]
-        if row["gender"].downcase == "pria"
-          row["gender"] = "P"
-        else
-          row["gender"] = "W"
-        end
-
-        row["marital_status"] = StaticData::MaritalStatus.select{ |k, v| k.downcase == row["marital_status"].downcase }.first[1]
-        row["id_card_type"] = StaticData::IdCardType.select{ |k, v| k.downcase == row["id_card_type"].downcase }.first[1]
-        if row["join_date"].nil?
-          row["join_date"] = Date.today
-        end
-
-        member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
-        member.attributes = row.reject{ |k, r| k == "id_card_number" || k.nil? } unless member.new_record?
-        unless member.save
-          @result_import[:errors] << { id_card_number: row['id_card_number'], errors: member.errors.messages }
-        else
-          @result_import[:success] += 1
-        end
-      end
-    end
-=end
     @result_import = { errors: [], success: [] }
-    spreadsheet = open_spreadsheet(params[:invitees])
-    spreadsheet.sheets.each do |sheet| # looping all sheet
-      spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
-      header = spreadsheet.row(1).map{ |h| h.downcase }
-      header_mapping = { 'nama': 'name',
-                         'email': 'email',
-                         'relasi': 'relation',
-                         'jumlah': 'number',
-                         'alamat': 'address',
-                         'telepon': 'phone' }
-      new_header = header.map{ |h| header_mapping[h.to_sym] }
-      (2..spreadsheet.last_row).each do |i| # looping all excel data
-        row = Hash[[new_header, spreadsheet.row(i)].transpose]
-        # member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
-        invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
-        invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
-        unless invitee.save
-          @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
-        else
-          @result_import[:success] << { email: row['email'] }
-          @users = User.where(email: row['email'])
-          # create user for login and retrieve invitation
-          if @users.empty?
-            logger.debug "-------------------------------------not find user #{ row.inspect }"
-            @user = User.create(email: row['email'], password: '12345678', password_confirmation: '12345678')
-            logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+    unless session.has_key?(:credentials)
+      redirect_to('/oauth2callback')
+    else
+      spreadsheet = open_spreadsheet(params[:invitees])
+      spreadsheet.sheets.each do |sheet| # looping all sheet
+        spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
+        header = spreadsheet.row(1).map{ |h| h.downcase }
+        header_mapping = { 'nama': 'name',
+                           'email': 'email',
+                           'relasi': 'relation',
+                           'jumlah': 'number',
+                           'alamat': 'address',
+                           'telepon': 'phone' }
+        new_header = header.map{ |h| header_mapping[h.to_sym] }
+        (2..spreadsheet.last_row).each do |i| # looping all excel data
+          row = Hash[[new_header, spreadsheet.row(i)].transpose]
+          # member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
+          row["event_id"] = @event.id
+          invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
+          invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
+          unless invitee.save
+            @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
+          else
+            @result_import[:success] << { email: row['email'] }
+            @users = User.where(email: row['email'])
+            # create user for login and retrieve invitation
+            if @users.empty?
+              logger.debug "-------------------------------------not find user #{ row.inspect }"
+              @user = User.create(email: row['email'], password: '12345678', password_confirmation: '12345678')
+              @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+              logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+            else
+              @user = @users.first
+              @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+            end
           end
-        end
-      end # looping all excel data
-    end # looping all sheets
+        end # looping all excel data
+      end # looping all sheets
 
-    client_opts = JSON.parse(session[:credentials])
-    auth_client = Signet::OAuth2::Client.new(client_opts)
-    client = Google::Apis::CalendarV3::CalendarService.new
-    client.authorization = auth_client
+      client_opts = JSON.parse(session[:credentials])
+      auth_client = Signet::OAuth2::Client.new(client_opts)
+      client = Google::Apis::CalendarV3::CalendarService.new
+      client.authorization = auth_client
 
-    g_event = client.get_event('primary', @event.event_id)
-=begin
-    if g_event.attendees.nil?
-      g_event.attendees = []
-    end
-=end
+      g_event = client.get_event('primary', @event.event_id)
+      g_event.attendees = @result_import[:success]
 
-    #must_add = @result_import[:success].map(&:email) - g_event.attendees.map(&:email)
-    #must_delete = g_event.attendees.map(&:email) - @result_import[:success].map(&:email)
+      result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+      print result.updated
 
-    g_event.attendees = @result_import[:success]
-
-    result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
-    print result.updated
-=begin
-    CSV.foreach(params[:invitees].tempfile,
-                :headers => true,
-                :converters => :all,
-                :header_converters => lambda { |h| h.downcase.gsub(' ', '_')}) do |row|
-      new_row = row.to_hash
-      #@invitee = Invitee.where(email: new_row[:email]).first_or_create
-      @invitees = Invitee.where(email: new_row[:email])
-      unless @invitees.empty?
-        logger.debug "--------------------------find record"
-        @invitee = @invitees.first
-        if @invitee.update_attributes(new_row)
-          @success_count += 1
-        else
-          @errors << { :name => new_row['name'], :errors => @invitee.errors }
-        end
-      else
-        @invitee = Invitee.new(new_row)
-        #@invitee.attributes = new_row
-        if @invitee.save
-          @success_count += 1
-        else
-          @errors << { :name => new_row['name'], :errors => @invitee.errors }
-        end
-      end # close check @invitee is new record
-
-      @users = User.where(email: new_row['email'])
-      # create user for login and retrieve invitation
-      if @users.empty?
-        logger.debug "-------------------------------------not find user #{ new_row.inspect }"
-        @user = User.create(email: new_row['email'], password: '12345678', password_confirmation: '12345678')
-        logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+      respond_to do |format|
+        format.html { render :import_form }
       end
-    end
-=end
-
-    respond_to do |format|
-      format.html { render :import_form }
     end
   end
 
@@ -304,6 +275,16 @@ class InviteesController < ApplicationController
     redirect_to url_for(:action => :calendars)
   end
 
+  # suggest all relations that have been created
+  def relations
+    relations = Invitee.all.map(&:relation).uniq
+    relations_h = []
+    relations.each do |relation|
+      relations_h.push({ item: relation, text: relation })
+    end
+    render json: { items: relations_h }
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_invitee
@@ -318,6 +299,23 @@ class InviteesController < ApplicationController
 
     def set_event
       @event = Event.find(params[:event_id])
+    end
+
+    def update_google_event(attendees)
+      unless session.has_key?(:credentials)
+        redirect_to oauth2callback_path
+      else
+        client_opts = JSON.parse(session[:credentials])
+        auth_client = Signet::OAuth2::Client.new(client_opts)
+        client = Google::Apis::CalendarV3::CalendarService.new
+        client.authorization = auth_client
+
+        g_event = client.get_event('primary', @event.event_id)
+        # attendees = [ { email: 'a@b.com' } ]
+        g_event.attendees = attendees
+
+        result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+      end
     end
 
     def open_spreadsheet(file)

@@ -18,7 +18,8 @@
   </div>
   <div class="field">
     <%= f.label :relation %><br>
-    <%= f.text_field :relation %>
+    <%#= f.text_field :relation %>
+    <%= f.select :relation, [] %>
   </div>
   <div class="field">
     <%= f.label :number %><br>
@@ -40,3 +41,50 @@
     <%= f.submit %>
   </div>
 <% end %>
+
+<script>
+  $(document).ready(function(){
+    function formatRepo (repo) {
+      if (repo.loading) return repo.text;
+
+      var markup = "<div class='select2-result-repository clearfix'>" +
+          "<div class='select2-result-repository__meta'>" +
+            "<div class='select2-result-repository__title'>" + repo.text + "</div>"+
+          "</div>"+
+        "</div>";
+
+      return markup;
+    }
+
+    function formatRepoSelection (repo) {
+      return repo.full_name || repo.text;
+    }
+
+    $("#invitee_relation").select2({
+      tags: true,
+      multiple: false,
+      createTag: function (params) {
+        return { id: params.term, text: params.term };
+      },
+      ajax: {
+        url: "<%= invitees_relations_path %>",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            q: params.term, // search term
+            page: params.page
+          };
+        },
+        processResults: function (data, params) {
+          return { results: data.items };
+        },
+        cache: true
+      },
+      escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+      minimumInputLength: 1,
+      templateResult: formatRepo, // omitted for brevity, see the source of this page
+      templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+    });
+  });
+</script>
