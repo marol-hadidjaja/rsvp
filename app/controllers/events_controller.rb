@@ -79,16 +79,20 @@ class EventsController < ApplicationController
       puts "Events created: #{result.inspect}"
 =end
     #end
-    if current_user.has_role?("admin") || current_user.has_role?("receptionist")
-      if Event.all.empty?
+    if current_user.has_role?("invitee")
+      # redirect_to event_path(current_user.events.first)
+      @events = current_user.events.order("created_at DESC")
+    elsif current_user.has_role?("receptionist")
+      redirect_to event_invitees_path(current_user.events.first)
+    elsif current_user.has_role?("admin")
+      if current_user.events.empty?
         redirect_to new_event_path
       else
-        @events = Event.all
+        @events = current_user.events
       end
-    # elsif current_user.has_role?("receptionist")
-    #  redirect_to event_invitees_path(current_user.event)
     else
-      @events = Event.all
+      # new user with no roles
+      redirect_to new_event_path
     end
   end
 
@@ -339,8 +343,9 @@ class EventsController < ApplicationController
         location: event.location,
         start: { date_time: event.start.to_datetime,
                  time_zone: 'Asia/Bangkok' },
-                 end: { date_time: event.end.to_datetime,
+        end: { date_time: event.end.to_datetime,
                time_zone: 'Asia/Bangkok' },
+        attendees: [],
         guestsCanInviteOthers: false,
         guestsCanSeeOtherGuests: false
       })
@@ -350,6 +355,7 @@ class EventsController < ApplicationController
         logger.debug "--------------------------#{result.inspect}"
         event.event_id = result.id
         event.save
+        current_user.user_roles.create(event: event, role: Role.find_by_name('admin'))
         session.delete(:event)
         1
       else

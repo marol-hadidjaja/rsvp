@@ -14,10 +14,14 @@ class InviteesController < ApplicationController
   # GET /invitees
   # GET /invitees.json
   def index
-    if Event.where(user_id: current_user.id).empty?
-      redirect_to new_event_path
+    if current_user.user_roles.empty?
+      if Event.where(user_id: current_user.id).empty?
+        redirect_to new_event_path
+      else
+        @invitees = Invitee.all
+      end
     else
-      @invitees = Invitee.all
+      @invitees = Event.find(params[:event_id]).invitees
     end
   end
 
@@ -41,43 +45,49 @@ class InviteesController < ApplicationController
   def create
     @invitee = Invitee.new(invitee_params)
 
-    respond_to do |format|
-      if @invitee.save
-        @users = User.where(email: invitee_params['email'])
-        # create user for login and retrieve invitation
-        if @users.empty?
-          @user = User.create(email: invitee_params['email'], password: '12345678', password_confirmation: '12345678')
-          @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
-          logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+    if @invitee.save
+      @users = User.where(email: invitee_params['email'])
+      # create user for login and retrieve invitation
+      if @users.empty?
+        @user = User.create(email: invitee_params['email'], password: '12345678', password_confirmation: '12345678')
+        @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+        logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+      else
+        @user = @users.first
+        @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+      end
+
+      unless session.has_key?(:credentials)
+        session[:new_attendees] = { email: invitee_params['email'] }
+        redirect_to oauth2callback_path
+      else
+        client_opts = JSON.parse(session[:credentials])
+        auth_client = Signet::OAuth2::Client.new(client_opts)
+        client = Google::Apis::CalendarV3::CalendarService.new
+        client.authorization = auth_client
+
+        g_event = client.get_event('primary', @event.event_id)
+        # attendees = [ { email: 'a@b.com' } ]
+        if session[:new_attendees]
+          attendees = session[:new_attendees]
+          session.delete(:new_attendees)
         else
-          @user = @users.first
-          @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+          attendees = { email: invitee_params['email'] }
         end
+        g_event.attendees = [] if g_event.attendees.nil?
+        g_event.attendees.push(attendees)
 
-        unless session.has_key?(:credentials)
-          session[:new_attendees] = { email: invitee_params['email'] }
-          redirect_to oauth2callback_path
-        else
-          client_opts = JSON.parse(session[:credentials])
-          auth_client = Signet::OAuth2::Client.new(client_opts)
-          client = Google::Apis::CalendarV3::CalendarService.new
-          client.authorization = auth_client
+        result = client.update_event('primary', g_event.id, g_event)#, send_notifications: true)
+        InviteeMailer.invitation_email(@event, @invitee).deliver
+      end
 
-          g_event = client.get_event('primary', @event.event_id)
-          # attendees = [ { email: 'a@b.com' } ]
-          if session[:new_attendees]
-            attendees = session[:new_attendees]
-            session.delete(:new_attendees)
-          else
-            attendees = { email: invitee_params['email'] }
-          end
-          g_event.attendees.push(attendees)
-
-          result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
-        end
+      respond_to do |format|
+        #format.html { render :show, status: :created, location: @invitee}
         format.html { redirect_to @invitee, notice: 'Invitee was successfully created.' }
         format.json { render :show, status: :created, location: @invitee }
-      else
+      end
+    else
+      respond_to do |format|
         format.html { render :new }
         format.json { render json: @invitee.errors, status: :unprocessable_entity }
       end
@@ -128,10 +138,10 @@ class InviteesController < ApplicationController
       g_event.attendees.delete_if{ |attendee| attendee.email == attendees[:email] }
 
       result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
-    end
-    respond_to do |format|
-      format.html { redirect_to event_invitees_url(@invitee.event), notice: 'Invitee was successfully destroyed.' }
-      format.json { head :no_content }
+      respond_to do |format|
+        format.html { redirect_to event_invitees_url(@invitee.event), notice: 'Invitee was successfully destroyed.' }
+        format.json { head :no_content }
+      end
     end
   end
 
