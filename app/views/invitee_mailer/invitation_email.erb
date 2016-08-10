@@ -3,9 +3,11 @@
   <head></head>
 
   <body>
-    Invitation email
-    to <%= @invitee.email %>, <%= @invitee.name %><br/>
+    Invitation email <%= @invitee.name %><br/>
+    email: <%= @invitee.email %><br/>
+    password: 12345678<br/>
     Event <%= @event.name %><br/>
+    <%= link_to 'Update attendace', "http://localhost:3000#{ event_path(@event) }" %>
     <%= @event.description %>
   </body>
 </html>

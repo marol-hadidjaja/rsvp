@@ -18,8 +18,10 @@
   </head>
 
   <body>
-    <%= link_to "Home", root_path %>
-    <%= link_to "Events", events_path %>
+    <% unless current_user.has_role?("invitee") %>
+      <%= link_to "Home", root_path %>
+      <%= link_to "Events", events_path %>
+    <% end %>
     <%#= link_to "Invitees", invitees_path %>
     <%#= link_to "Invitation", invitation_path %>
     <%= current_user.email %>

@@ -177,6 +177,10 @@ class EventsController < ApplicationController
   def update
   end
 
+  def show
+    @event = Event.find(params[:id])
+  end
+
   def authorize
     # NOTE: Assumes the user is already authenticated to the app
     #user_id = request.session['user_id']

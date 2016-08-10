@@ -1,0 +1,11 @@
+show event<br/>
+Name: <%= @event.name %><br/>
+Desc: <%= @event.description %><br/>
+Begin: <%= @event.start.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") %><br/>
+End: <%= @event.end.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") %><br/>
+
+Attend?
+<%= form_tag update_comming_invitee(current_user) do %>
+  <%= radio_button_tag 'attendance', false %> No<br/>
+  <%= radio_button_tag 'attendance', true %> Yes<br/>
+<% end %>
