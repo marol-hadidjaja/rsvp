@@ -30,6 +30,14 @@ class EventsController < ApplicationController
   #before_action :setgoogleauth
 
   def index
+=begin
+  <Event id: 1, user_id: 1, name: "gh", event_id: "3edbr26rpgoioaq3r5g4tbulk4", description: "gh",
+    location: "gh", start: "2016-10-08 10:00:00", end: "2016-10-08 12:00:00", created_at: "2016-08-04 15:20:25",
+    updated_at: "2016-08-04 15:20:26">
+  <Event id: 2, user_id: 1, name: "married", event_id: "0p8r60aoe3f9huq9q78nch0dss", description: "married",
+    location: "n", start: "2016-10-08 10:00:00", end: "2016-10-08 12:00:00", created_at: "2016-08-08 16:43:40",
+    updated_at: "2016-08-08 16:43:41">]
+=end
     #unless session.has_key?(:credentials)
     #  redirect_to('/oauth2callback')
     #else
@@ -88,7 +96,7 @@ class EventsController < ApplicationController
       if current_user.events.empty?
         redirect_to new_event_path
       else
-        @events = current_user.events
+        @events = current_user.events.order("created_at DESC")
       end
     else
       # new user with no roles
@@ -172,9 +180,37 @@ class EventsController < ApplicationController
   end
 
   def edit
+    @event = Event.find(params[:id])
   end
 
   def update
+    @event = Event.find(params[:id])
+    if @event.update(event_params)
+      unless params[:event_images].empty?
+        params[:event_images].each do |image|
+          @event.images << Image.create(file: image, user: current_user)
+        end
+      end
+      respond_to do |format|
+        format.html { redirect_to event_invitees_path(@event) }
+      end
+    else
+      respond_to do |format|
+        format.html { render :edit }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def images
+    @image = Image.find(params[:id])
+    if params[:style] == 'original'
+      image_path = @image.file.path
+    else params[:style] == 'thumb'
+      image_path = @image.file.path(:thumb)
+    end
+    send_file(image_path, filename: File.basename(@image.file_file_name, File.extname(@image.file_file_name)),
+              type: @image.file_content_type, disposition: :inline)
   end
 
   def show

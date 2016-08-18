@@ -11,7 +11,8 @@ class SessionsController < Devise::SessionsController
     # or turn layout off for every devise controller:
     devise_controller? && "application"
   end
-# before_filter :configure_sign_in_params, only: [:create]
+
+  # before_filter :configure_sign_in_params, only: [:create]
 
   # GET /resource/sign_in
   # def new

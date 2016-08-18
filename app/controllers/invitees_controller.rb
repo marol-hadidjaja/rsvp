@@ -18,9 +18,11 @@ class InviteesController < ApplicationController
       if Event.where(user_id: current_user.id).empty?
         redirect_to new_event_path
       else
-        @invitees = Invitee.all
+        @event = Event.find(params[:event_id])
+        @invitees = Event.find(params[:event_id]).invitees
       end
     else
+      @event = Event.find(params[:event_id])
       @invitees = Event.find(params[:event_id]).invitees
     end
   end

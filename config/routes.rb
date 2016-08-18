@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     get 'invitees/invitation' => 'invitees#invitation'
     get 'invitees/send_invitation' => 'invitees#send_invitation'
   end
+  get 'images/:id/:style' => 'events#images'
 
   get 'oauth2callback' => 'events#oauth2callback'
   get 'authorize' => 'events#authorize'

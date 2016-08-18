@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160307152713) do
+ActiveRecord::Schema.define(version: 20160818175803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,14 +21,38 @@ ActiveRecord::Schema.define(version: 20160307152713) do
     t.string   "name"
     t.string   "event_id"
     t.text     "description"
-    t.text     "location"
-    t.datetime "start"
-    t.datetime "end"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.text     "ceremonial_location"
+    t.datetime "ceremonial_start"
+    t.datetime "ceremonial_end"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.string   "reception_start"
+    t.string   "reception_end"
+    t.string   "reception_location"
   end
 
   add_index "events", ["user_id"], name: "index_events_on_user_id", using: :btree
+
+  create_table "events_images", force: :cascade do |t|
+    t.integer  "event_id"
+    t.integer  "image_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "events_images", ["image_id", "event_id"], name: "index_events_images_on_image_id_and_event_id", unique: true, using: :btree
+
+  create_table "images", force: :cascade do |t|
+    t.string   "file_file_name"
+    t.string   "file_content_type"
+    t.integer  "file_file_size"
+    t.datetime "file_updated_at"
+    t.integer  "user_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "images", ["user_id"], name: "index_images_on_user_id", using: :btree
 
   create_table "invitees", force: :cascade do |t|
     t.integer  "event_id"

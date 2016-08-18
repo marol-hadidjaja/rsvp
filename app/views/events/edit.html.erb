@@ -1,2 +1,53 @@
 <h1>Events#edit</h1>
-<p>Find me in app/views/events/edit.html.erb</p>
+
+<%= form_for(@event, html: { multipart: true }) do |f| %>
+  <%= f.hidden_field :user_id %>
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name, autofocus: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %><br/>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :location %><br />
+    <%= f.text_area :location %>
+  </div>
+
+  <div class="field">
+    <%= f.label :start %><br/>
+    <%= f.text_field :start, value: @event.start_wib %>
+  </div>
+
+  <div class="field">
+    <%= f.label :end %><br/>
+    <%= f.text_field :end, value: @event.end_wib %>
+  </div>
+
+  <div class="field">
+    <%= f.label :images %>
+    <%= file_field_tag "event_images[]", multiple: true %>
+    <% unless @event.images.empty? %>
+      <% @event.images.each do |image| %>
+        <img src='<%= image.file(:thumb) %>'>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Update" %>
+  </div>
+<% end %>
+
+<script>
+  $(document).ready(function(){
+    var d = new Date()
+    $('#event_start, #event_end').fdatepicker({
+      format: 'dd-mm-yyyy hh:ii',
+      disableDblClickSelection: true,
+      pickTime: true })
+  })
+</script>
