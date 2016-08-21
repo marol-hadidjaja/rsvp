@@ -5,8 +5,8 @@ Rails.application.routes.draw do
   resources :events, shallow: true do
     resources :invitees, shallow: true do
       member do
-        get 'update_coming', :defaults => { :format => :json }
-        get 'update_rsvp'
+        post 'update_response', :defaults => { :format => :json }
+        post 'update_arrival'
       end
     end
     get 'invitees/import' => 'invitees#import_form'

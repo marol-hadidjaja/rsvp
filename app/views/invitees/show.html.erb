@@ -31,8 +31,8 @@
 </p>
 
 <p>
-  <strong>Response:</strong>
-  <%= @invitee.response %>
+  <strong>Ceremonial Response:</strong>
+  <%= @invitee.ceremonial_response %>
 </p>
 
 <p>
@@ -49,6 +49,3 @@
   <strong>Updated at:</strong>
   <%= @invitee.updated_at %>
 </p>
-
-<%= link_to 'Edit', edit_invitee_path(@invitee) %> |
-<%= link_to 'Back', event_invitees_path(@invitee.event) %>

@@ -1,50 +1,52 @@
 <p id="notice"><%= notice %></p>
 
-<%= link_to 'Edit Event', edit_event_path(@event) %>
 <h1>Listing Invitees</h1>
-<%= link_to 'New Invitee', new_event_invitee_path %><br/>
-<%= link_to 'Import', event_invitees_import_path %><br/>
-<%= link_to 'Export', event_invitees_export_path(:format => :csv) %><br/>
+<% unless current_user.has_role?("invitee") %>
+  <%= link_to 'Edit Event', edit_event_path(@event) %>
+  <%= link_to 'New Invitee', new_event_invitee_path %><br/>
+  <%= link_to 'Import', event_invitees_import_path %><br/>
+  <%= link_to 'Export', event_invitees_export_path(:format => :csv) %><br/>
 
-<% unless @invitees.empty? %>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Relation</th>
-        <th>Number</th>
-        <th>Email</th>
-        <th>Address</th>
-        <th>Phone</th>
-        <th>Response</th>
-        <th>Arrival</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-        <th colspan="3"></th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <% @invitees.each do |invitee| %>
+  <% unless @invitees.empty? %>
+    <table>
+      <thead>
         <tr>
-          <td><%= invitee.name %></td>
-          <td><%= invitee.relation %></td>
-          <td><%= invitee.number %></td>
-          <td><%= invitee.email %></td>
-          <td><%= invitee.address %></td>
-          <td><%= invitee.phone %></td>
-          <td><%= invitee.response %></td>
-          <td><%= invitee.arrival %></td>
-          <td><%= invitee.created_at.strftime("%d - %B - %Y") %></td>
-          <td><%= invitee.updated_at %></td>
-          <td><%= link_to 'Show', invitee %></td>
-          <td><%= link_to 'Edit', edit_invitee_path(invitee) %></td>
-          <td><%= link_to 'Destroy', invitee, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-          <td><%= link_to 'Send', event_invitees_send_invitation_path(email: invitee.email) %></td>
+          <th>Name</th>
+          <th>Relation</th>
+          <th>Number</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Phone</th>
+          <th>Response</th>
+          <th>Arrival</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+          <th colspan="3"></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  No invitee(s) found
+      </thead>
+
+      <tbody>
+        <% @invitees.each do |invitee| %>
+          <tr>
+            <td><%= invitee.name %></td>
+            <td><%= invitee.relation %></td>
+            <td><%= invitee.number %></td>
+            <td><%= invitee.email %></td>
+            <td><%= invitee.address %></td>
+            <td><%= invitee.phone %></td>
+            <td><%= invitee.reception_response %></td>
+            <td><%= invitee.arrival %></td>
+            <td><%= invitee.created_at.strftime("%d - %B - %Y") %></td>
+            <td><%= invitee.updated_at %></td>
+            <td><%= link_to 'Show', invitee %></td>
+            <td><%= link_to 'Edit', edit_invitee_path(invitee) %></td>
+            <td><%= link_to 'Destroy', invitee, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+            <td><%= link_to 'Send', event_invitees_send_invitation_path(email: invitee.email) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    No invitee(s) found
+  <% end %>
 <% end %>

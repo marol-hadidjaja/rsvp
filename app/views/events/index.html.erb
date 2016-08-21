@@ -19,16 +19,18 @@
       <tbody>
         <% @events.each do |event| %>
           <tr>
-            <td><%= event.name %></td>
             <% if current_user.has_role?("admin") %>
-              <td><%= "#{ event.start.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") } WIB" %></td>
-              <td><%= "#{ event.end.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") } WIB" %></td>
+              <td><%= link_to event.name, event_path(event) %></td>
+              <td><%= "#{ event.reception_start.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") } WIB" %></td>
+              <td><%= "#{ event.reception_end.getlocal("+07:00").strftime("%d-%B-%Y %H:%M") } WIB" %></td>
               <td><%= event.created_at.strftime("%d-%B-%Y") %></td>
               <td><%= link_to 'Invitees', event_invitees_path(event) %></td>
               <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
             <% elsif current_user.has_role?("invitee") %>
+              <td><%= event.name %></td>
               <td><%= link_to 'Show', event_path(event) %></td>
             <% elsif current_user.has_role?("receptionist") %>
+              <td><%= event.name %></td>
             <% end %>
           </tr>
         <% end %>

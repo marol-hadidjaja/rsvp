@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160818175803) do
+ActiveRecord::Schema.define(version: 20160820002139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,8 +26,8 @@ ActiveRecord::Schema.define(version: 20160818175803) do
     t.datetime "ceremonial_end"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
-    t.string   "reception_start"
-    t.string   "reception_end"
+    t.datetime "reception_start"
+    t.datetime "reception_end"
     t.string   "reception_location"
   end
 
@@ -62,10 +62,11 @@ ActiveRecord::Schema.define(version: 20160818175803) do
     t.string   "email"
     t.text     "address"
     t.string   "phone"
-    t.boolean  "response"
+    t.boolean  "ceremonial_response"
     t.boolean  "arrival"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.boolean  "reception_response"
   end
 
   add_index "invitees", ["event_id"], name: "index_invitees_on_event_id", using: :btree

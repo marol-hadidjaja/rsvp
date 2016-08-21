@@ -11,6 +11,8 @@ require 'googleauth/web_user_authorizer'
 #require 'googleauth/stores/file_token_store'
 require 'googleauth/stores/redis_token_store'
 require 'redis'
+require 'rqrcode'
+require 'rqrcode_png'
 #require 'multi_json'
 
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -28,6 +30,8 @@ authorizer = Google::Auth::WebUserAuthorizer.new(client_id, scope, token_store, 
 
 class EventsController < ApplicationController
   #before_action :setgoogleauth
+
+  skip_before_filter :authenticate_user!, :only => :images
 
   def index
 =begin
@@ -88,8 +92,8 @@ class EventsController < ApplicationController
 =end
     #end
     if current_user.has_role?("invitee")
-      # redirect_to event_path(current_user.events.first)
-      @events = current_user.events.order("created_at DESC")
+      redirect_to event_path(current_user.events.first)
+      # @events = current_user.events.order("created_at DESC")
     elsif current_user.has_role?("receptionist")
       redirect_to event_invitees_path(current_user.events.first)
     elsif current_user.has_role?("admin")
@@ -215,6 +219,20 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.find(params[:id])
+    if current_user.has_role?("invitee")
+      @invitee = Invitee.find_by_email(current_user.email)
+      @numbers = []
+      0.upto(@invitee.number) do |number|
+        @numbers << number
+      end
+      @qrcode = RQRCode::QRCode.new("http://192.168.1.4:3000#{ update_arrival_invitee_path(@invitee) }")
+      # @qrcode_png = @qrcode.to_img
+      # @qrcode_png.resize(90, 90).save("public/qrcode_#{ @invitee.id }.png")
+      @qrcode_png = @qrcode.to_img.resize(90, 90)
+    elsif current_user.has_role?("admin")
+      @ceremonial_response = Invitee.ceremonial_ok
+      @reception_response = Invitee.reception_ok
+    end
   end
 
   def authorize
@@ -300,7 +318,8 @@ class EventsController < ApplicationController
   private
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      event_param = params.require(:event).permit(:name, :description, :location, :start, :end, :user_id)
+      event_param = params.require(:event).permit(:name, :description, :ceremonial_location, :ceremonial_start, :ceremonial_end,
+                                                  :reception_location, :reception_start, :reception_end, :user_id)
       change_to_wib(event_param)
     end
 
@@ -344,9 +363,7 @@ class EventsController < ApplicationController
       authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store) # Invalid Grant => Code already redeemed
       #authorizer = Google::Auth::WebUserAuthorizer.new(client_id, SCOPE, token_store, '/oauth2callback')
       user_id = 'default'
-      puts "authorizer: #{authorizer.inspect}"
       credentials = authorizer.get_credentials(user_id, request)
-      puts "credentials: #{credentials.inspect}"
       if credentials.nil?
         #url = authorizer.get_authorization_url(base_url: OOB_URI, request: request)
         url = authorizer.get_authorization_url(base_url: OOB_URI)
@@ -361,11 +378,18 @@ class EventsController < ApplicationController
     end
 
     def change_to_wib(event_param)
-      start_time = event_param[:start].to_datetime
-      event_param[:start] = DateTime.new(start_time.year, start_time.month, start_time.day,
+      start_time = event_param[:ceremonial_start].to_datetime
+      event_param[:ceremonial_start] = DateTime.new(start_time.year, start_time.month, start_time.day,
                                          start_time.hour, start_time.minute, start_time.second, '+7')
-      end_time = event_param[:end].to_datetime
-      event_param[:end] = DateTime.new(end_time.year, end_time.month, end_time.day,
+      end_time = event_param[:ceremonial_end].to_datetime
+      event_param[:ceremonial_end] = DateTime.new(end_time.year, end_time.month, end_time.day,
+                                       end_time.hour, end_time.minute, end_time.second, '+7')
+
+      start_time = event_param[:reception_start].to_datetime
+      event_param[:reception_start] = DateTime.new(start_time.year, start_time.month, start_time.day,
+                                         start_time.hour, start_time.minute, start_time.second, '+7')
+      end_time = event_param[:reception_end].to_datetime
+      event_param[:reception_end] = DateTime.new(end_time.year, end_time.month, end_time.day,
                                        end_time.hour, end_time.minute, end_time.second, '+7')
       event_param
     end
@@ -375,24 +399,20 @@ class EventsController < ApplicationController
       auth_client = Signet::OAuth2::Client.new(client_opts)
       client = Google::Apis::CalendarV3::CalendarService.new
       client.authorization = auth_client
-      #client.authorization = authorize
-      #calendar_api = client.discovered_api('calendar', 'v3')
       new_event = Google::Apis::CalendarV3::Event.new({
         summary: event.name,
         description: event.description,
-        location: event.location,
-        start: { date_time: event.start.to_datetime,
+        location: event.reception_location,
+        start: { date_time: event.reception_start.to_datetime,
                  time_zone: 'Asia/Bangkok' },
-        end: { date_time: event.end.to_datetime,
+        end: { date_time: event.reception_end.to_datetime,
                time_zone: 'Asia/Bangkok' },
         attendees: [],
         guestsCanInviteOthers: false,
         guestsCanSeeOtherGuests: false
       })
 
-      logger.debug "------------------------------------#{new_event.inspect}"
       if result = client.insert_event('primary', new_event, send_notifications: true)
-        logger.debug "--------------------------#{result.inspect}"
         event.event_id = result.id
         event.save
         current_user.user_roles.create(event: event, role: Role.find_by_name('admin'))

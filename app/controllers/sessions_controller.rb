@@ -13,6 +13,13 @@ class SessionsController < Devise::SessionsController
   end
 
   # before_filter :configure_sign_in_params, only: [:create]
+  before_filter :set_object, only: [:new]
+
+  def set_object
+    if session[:event_id].present?
+      @event = Event.find(session[:event_id])
+    end
+  end
 
   # GET /resource/sign_in
   # def new

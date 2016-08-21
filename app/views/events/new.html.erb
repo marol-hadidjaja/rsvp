@@ -13,18 +13,33 @@
   </div>
 
   <div class="field">
-    <%= f.label :location %><br />
-    <%= f.text_area :location %>
+    <%= f.label :ceremonial_location %><br />
+    <%= f.text_area :ceremonial_location %>
   </div>
 
   <div class="field">
-    <%= f.label :start %><br/>
-    <%= f.text_field :start %>
+    <%= f.label :ceremonial_start %><br/>
+    <%= f.text_field :ceremonial_start %>
   </div>
 
   <div class="field">
-    <%= f.label :end %><br/>
-    <%= f.text_field :end %>
+    <%= f.label :ceremonial_end %><br/>
+    <%= f.text_field :ceremonial_end %>
+  </div>
+
+  <div class="field">
+    <%= f.label :reception_location %><br />
+    <%= f.text_area :reception_location %>
+  </div>
+
+  <div class="field">
+    <%= f.label :reception_start %><br/>
+    <%= f.text_field :reception_start %>
+  </div>
+
+  <div class="field">
+    <%= f.label :reception_end %><br/>
+    <%= f.text_field :reception_end %>
   </div>
 
   <div class="actions">
@@ -35,7 +50,7 @@
 <script>
   $(document).ready(function(){
     var d = new Date()
-    $('#event_start, #event_end').fdatepicker({
+    $('#event_ceremonial_start, #event_ceremonial_end, #event_reception_start, #event_reception_end').fdatepicker({
       format: 'dd-mm-yyyy hh:ii',
       disableDblClickSelection: true,
       pickTime: true })

@@ -1,0 +1,72 @@
+<div class="input">
+  <% if @invitee.updated_at > @invitee.created_at %>
+    <div class="input">
+      <form>
+        <div class="row">
+          <div class="medium-12 columns">
+            <h5>Thank you for joining</h5>
+            <h6>Don't forget our wedding was held on <strong><%= @event.the_day %></strong></h6>
+          </div>
+          <div class="medium-12 columns">
+            <div class="finishForm">
+              <h6>You will attend our wedding at:</h6>
+              <div class="desc">
+                <h6><strong>Holy Matrimony</strong></h6>
+                <p class="first"><%= @event.ceremonial_location %></p>
+              </div>
+
+              <div class="desc">
+                <h6><strong>Wedding Reception</strong></h6>
+                <p class="first"><%= @event.reception_location %></p>
+              </div>
+
+              <h6>I will come for <%= @invitee.number %> person(s)</h6>
+            </div><!-- finishForm -->
+
+            <%= link_to "Logout", destroy_user_session_path, method: :delete, class: "button logout" %>
+          </div><!-- .medium-12.columns -->
+        </div><!-- .row -->
+      </form>
+    </div><!-- .input -->
+  <% else %>
+    <%= form_tag update_response_invitee_path(@invitee) do %>
+      <div class="row">
+        <div class="medium-12 columns">
+          <h5>Hi, <%= @invitee.name %> <span class="logout"><%= link_to "Logout", destroy_user_session_path, method: :delete %></span></h5>
+          <p>Thank you for joining us in our wedding day.</p>
+          <h6>Held on <strong><%= @event.the_day %></strong></h6>
+          <p>Please to confirm that you are attend in our wedding day.</p>
+          <p>Download Invitation: <a href="#" style="font-style: italic">mariagunawan</a></p>
+        </div>
+        <div class="medium-12 columns">
+          <fieldset class="fieldset">
+            <legend>I will attend in</legend>
+            <div>
+              <%= check_box_tag 'invitee[ceremonial_response]', true, @invitee.ceremonial_response %>
+              <label for="invitee[ceremonial_response]">Holy Matrimony</label>
+              <div class="desc">
+                <p class="first"><%= @event.ceremonial_location %></p>
+              </div>
+            </div>
+            <div>
+              <%= check_box_tag 'invitee[reception_response]', true, @invitee.reception_response %>
+              <label for="invitee[reception_response]">Wedding Reception</label>
+              <div class="desc">
+                <p class="first"><%= @event.reception_location %></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <label class="combobox">
+            I will come for
+            <%= select_tag 'invitee[number]', options_for_select(@numbers, @invitee.number) %>
+          </label>
+
+          <%= image_tag @qrcode_png.to_data_url %><br/>
+          <%= submit_tag 'CONFIRM', class: "button" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+</div><!-- .input -->

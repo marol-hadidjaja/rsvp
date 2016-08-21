@@ -25,6 +25,14 @@ class Invitee < ActiveRecord::Base
     end
   end
 
+  def self.ceremonial_ok
+    Invitee.where(ceremonial_response: true)
+  end
+
+  def self.reception_ok
+    Invitee.where(reception_response: true)
+  end
+
   def destroy_user
     User.where(email: email).destroy_all
   end

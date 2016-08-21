@@ -227,9 +227,8 @@ class InviteesController < ApplicationController
 
   def invitation
     @invitation = Invitee.find_by_email(current_user.email)
-    #@qr = RQRCode::QRCode.new( 'https://github.com/whomwah/rqrcode', :size => 4, :level => :h )
     unless @invitation.nil?
-      @qr = RQRCode::QRCode.new("http://192.168.1.8:3000/invitees/#{ @invitation.id }/update_coming", :size => 20, :level => :h)
+      @qr = RQRCode::QRCode.new("http://192.168.1.4:3000/invitees/#{ @invitation.id }/update_coming", :size => 20, :level => :h)
       respond_to do |format|
         format.html { render :invitation }
       end
@@ -238,15 +237,32 @@ class InviteesController < ApplicationController
     end
   end
 
-  def update_coming
+  def update_response
     @invitee = Invitee.find(params[:id])
-    respond_to do |format|
-      format.json { render json: @invitee, status: :unprocessable_entity }
+    # authorize! :update_response
+    if @invitee.update(invitee_params)
+      redirect_to @invitee.event
+    else
+      respond_to do |format|
+        format.html { render :show }
+      end
     end
   end
 
-  def update_rsvp
-
+  def update_arrival
+    @invitee = Invitee.find(params[:id])
+    # authorize! :update_arrival
+    if @invitee.update(invitee_params)
+      respond_to do |format|
+        format.json { render json: { email: @invitee.email, name: @invitee.name, relation: @invitee.relation, message: "Update success" } }
+        format.html { redirect_to event_path(@invitee.event) }
+      end
+    else
+      respond_to do |format|
+        format.html { render :show }
+        format.json { render json: @invitee.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def calendars
@@ -306,7 +322,7 @@ class InviteesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
       params.require(:invitee)
-        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :response, :arrival)
+        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response, :arrival)
     end
 
     def set_event
