@@ -21,14 +21,21 @@ ActiveRecord::Schema.define(version: 20160820002139) do
     t.string   "name"
     t.string   "event_id"
     t.text     "description"
-    t.text     "ceremonial_location"
+    t.text     "ceremonial_location_address"
     t.datetime "ceremonial_start"
     t.datetime "ceremonial_end"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "ceremonial_location_name"
     t.datetime "reception_start"
     t.datetime "reception_end"
-    t.string   "reception_location"
+    t.string   "reception_location_name"
+    t.text     "reception_location_address"
+    t.string   "invitation_file_name"
+    t.string   "invitation_content_type"
+    t.integer  "invitation_file_size"
+    t.datetime "invitation_updated_at"
+    t.string   "global_password"
   end
 
   add_index "events", ["user_id"], name: "index_events_on_user_id", using: :btree
@@ -67,6 +74,8 @@ ActiveRecord::Schema.define(version: 20160820002139) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.boolean  "reception_response"
+    t.integer  "number_response"
+    t.integer  "number_arrival"
   end
 
   add_index "invitees", ["event_id"], name: "index_invitees_on_event_id", using: :btree

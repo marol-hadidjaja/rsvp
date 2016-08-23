@@ -20,6 +20,8 @@ Things you may want to cover:
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
+ssh -i ~/.ssh/id_rsa-olivia olivia@202.148.7.143
+scp -i ~/.ssh/id_rsa-olivia -r rsvp/ olivia@202.148.7.143:/home/olivia
 
 * ...
 

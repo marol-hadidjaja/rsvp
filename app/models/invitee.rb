@@ -5,7 +5,6 @@ class Invitee < ActiveRecord::Base
   validates_length_of       :email, :within => 3..100
   validates_uniqueness_of   :email, :case_sensitive => false
   validates_format_of       :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-  validates                 :email, :uniqueness => true, :presence => true
   validate :number_bigger_than_zero
   after_destroy :destroy_user
 

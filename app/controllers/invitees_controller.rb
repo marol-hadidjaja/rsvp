@@ -81,13 +81,16 @@ class InviteesController < ApplicationController
 
         result = client.update_event('primary', g_event.id, g_event)#, send_notifications: true)
         InviteeMailer.invitation_email(@event, @invitee).deliver
+        redirect_to @invitee
       end
 
+=begin
       respond_to do |format|
         #format.html { render :show, status: :created, location: @invitee}
         format.html { redirect_to @invitee, notice: 'Invitee was successfully created.' }
         format.json { render :show, status: :created, location: @invitee }
       end
+=end
     else
       respond_to do |format|
         format.html { render :new }
@@ -204,7 +207,8 @@ class InviteesController < ApplicationController
       g_event = client.get_event('primary', @event.event_id)
       g_event.attendees = @result_import[:success]
 
-      result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+      # send_notifications: true
+      result = client.update_event('primary', g_event.id, g_event)
       print result.updated
 
       respond_to do |format|

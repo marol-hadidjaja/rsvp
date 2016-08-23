@@ -8,13 +8,23 @@
   </div>
 
   <div class="field">
+    <%= f.label :global_password %><br/>
+    <%= f.text_field :global_password %>
+  </div>
+
+  <div class="field">
     <%= f.label :description %><br/>
     <%= f.text_area :description %>
   </div>
 
   <div class="field">
-    <%= f.label :ceremonial_location %><br />
-    <%= f.text_area :ceremonial_location %>
+    <%= f.label :ceremonial_location_name %><br />
+    <%= f.text_field :ceremonial_location_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :ceremonial_location_address %><br />
+    <%= f.text_area :ceremonial_location_address %>
   </div>
 
   <div class="field">
@@ -28,8 +38,13 @@
   </div>
 
   <div class="field">
-    <%= f.label :reception_location %><br />
-    <%= f.text_area :reception_location %>
+    <%= f.label :reception_location_name %><br />
+    <%= f.text_area :reception_location_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :reception_location_address %><br />
+    <%= f.text_area :reception_location_address %>
   </div>
 
   <div class="field">
@@ -40,6 +55,14 @@
   <div class="field">
     <%= f.label :reception_end %><br/>
     <%= f.text_field :reception_end, value: @event.reception_end.in_time_zone('Bangkok').strftime('%d-%B-%Y %H:%M') %>
+  </div>
+
+  <div class="field">
+    <%= f.label :invitation %>
+    <%= file_field_tag "event[invitation]" %>
+    <% if @event.invitation.present? %>
+      <img src='<%= @event.invitation(:thumb) %>'>
+    <% end %>
   </div>
 
   <div class="field">

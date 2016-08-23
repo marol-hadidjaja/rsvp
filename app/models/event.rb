@@ -4,8 +4,21 @@ class Event < ActiveRecord::Base
   has_many :users, through: :user_roles
   has_many :user_roles
   has_and_belongs_to_many :images
-  validates :name, :event_id, :ceremonial_location, :ceremonial_start, :ceremonial_end,
-    :reception_location, :reception_start, :reception_end, presence: true
+  validates :name, :event_id, :ceremonial_location_name, :ceremonial_location_address, :ceremonial_start, :ceremonial_end,
+    :reception_location_name, :reception_location_address, :reception_start, :reception_end, :global_password, :invitation, presence: true
+  has_attached_file :invitation, styles: { thumb: "100x100#" },
+    path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation.:extension",
+    url: "/invitation/:id/:style"
+  validates_attachment_content_type :invitation, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+
+  # interpolate in paperclip
+  Paperclip.interpolates :user_id do |attachment, style|
+    attachment.instance.user_id
+  end
+
+  Paperclip.interpolates :id do |attachment, style|
+    attachment.instance.id
+  end
 
   def invitees
     Invitee.where(event_id: id)

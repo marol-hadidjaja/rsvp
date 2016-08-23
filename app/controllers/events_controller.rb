@@ -190,7 +190,7 @@ class EventsController < ApplicationController
   def update
     @event = Event.find(params[:id])
     if @event.update(event_params)
-      unless params[:event_images].empty?
+      if !params[:event_images].nil? && !params[:event_images].empty?
         params[:event_images].each do |image|
           @event.images << Image.create(file: image, user: current_user)
         end
@@ -210,15 +210,27 @@ class EventsController < ApplicationController
     @image = Image.find(params[:id])
     if params[:style] == 'original'
       image_path = @image.file.path
-    else params[:style] == 'thumb'
+    elsif params[:style] == 'thumb'
       image_path = @image.file.path(:thumb)
     end
     send_file(image_path, filename: File.basename(@image.file_file_name, File.extname(@image.file_file_name)),
               type: @image.file_content_type, disposition: :inline)
   end
 
+  def invitation
+    @event = Event.find(params[:id])
+    if params[:style] == 'original'
+      image_path = @event.invitation.path
+    elsif params[:style] == 'thumb'
+      image_path = @event.invitation.path(:thumb)
+    end
+    send_file(image_path, filename: File.basename(@event.invitation_file_name, File.extname(@event.invitation_file_name)),
+              type: @event.invitation_content_type, disposition: :inline)
+  end
+
   def show
     @event = Event.find(params[:id])
+    session[:event_id] = @event.id
     if current_user.has_role?("invitee")
       @invitee = Invitee.find_by_email(current_user.email)
       @numbers = []
@@ -319,7 +331,8 @@ class EventsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
       event_param = params.require(:event).permit(:name, :description, :ceremonial_location, :ceremonial_start, :ceremonial_end,
-                                                  :reception_location, :reception_start, :reception_end, :user_id)
+                                                  :reception_location, :reception_start, :reception_end, :user_id, :invitation,
+                                                  :global_password)
       change_to_wib(event_param)
     end
 
