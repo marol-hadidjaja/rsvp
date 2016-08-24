@@ -59,13 +59,14 @@ class InviteesController < ApplicationController
   # POST /invitees.json
   # TODO check
   def create
+    @event = Event.find(params[:event_id])
     @invitee = Invitee.new(invitee_params)
 
     if @invitee.save
       @users = User.where(email: invitee_params['email'])
       # create user for login and retrieve invitation
       if @users.empty?
-        @user = User.create(email: invitee_params['email'], password: '12345678', password_confirmation: '12345678')
+        @user = User.create(email: invitee_params['email'], password: @event.global_password, password_confirmation: @event.global_password)
         @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
         logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
       else
@@ -239,8 +240,13 @@ class InviteesController < ApplicationController
     end
   end
 
-  def send_invitation
-    InviteeMailer.invitation_email.deliver
+  def resend_invitation
+    @invitee = Invitee.find(params[:id])
+    @event = @invitee.event
+    InviteeMailer.invitation_email(@event, @invitee).deliver
+    respond_to do |format|
+      format.html { redirect_to event_invitees_path(@event), notice: 'resend invitation success' }
+    end
   end
 
   def invitation
@@ -275,8 +281,14 @@ class InviteesController < ApplicationController
       @numbers << number
     end
     # authorize! :update_arrival
-    respond_to do |format|
-      format.html { render :update_arrival_form }
+    if params[:partial] === 'true'
+      respond_to do |format|
+        format.json { render json: { html: render_to_string('_update_arrival_form', layout: false) } }
+      end
+    else
+      respond_to do |format|
+        format.html { render :update_arrival_form }
+      end
     end
   end
 

@@ -189,6 +189,7 @@ class EventsController < ApplicationController
 
   def update
     @event = Event.find(params[:id])
+    binding.pry
     if @event.update(event_params)
       if !params[:event_images].nil? && !params[:event_images].empty?
         params[:event_images].each do |image|
@@ -245,6 +246,27 @@ class EventsController < ApplicationController
       @ceremonial_response = Invitee.ceremonial_ok
       @reception_response = Invitee.reception_ok
     end
+  end
+
+  # show all receptionist for event
+  def receptionist
+    @event = Event.find(params[:event_id])
+    @users = User.joins(:user_roles).where("user_roles.role_id": Role.find_by_name('receptionist'),
+                                           "user_roles.event_id": @event)
+  end
+
+  def receptionist_new
+    @event = Event.find(params[:event_id])
+    @user = User.new
+  end
+
+  def receptionist_create
+    @event = Event.find(params[:event_id])
+    @user = User.new(user_params)
+    @user.password_confirmation = @user.password
+    # if @user.save
+    @event.user_roles.create(role: Role.find_by_name("receptionist"), user: @user)
+    redirect_to event_receptionist_path(@event)
   end
 
   def authorize
@@ -330,10 +352,15 @@ class EventsController < ApplicationController
   private
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      event_param = params.require(:event).permit(:name, :description, :ceremonial_location, :ceremonial_start, :ceremonial_end,
-                                                  :reception_location, :reception_start, :reception_end, :user_id, :invitation,
+      event_param = params.require(:event).permit(:name, :description, :ceremonial_location_name, :ceremonial_location_address,
+                                                  :ceremonial_start, :ceremonial_end, :reception_location_name,
+                                                  :reception_location_address, :reception_start, :reception_end, :user_id, :invitation,
                                                   :global_password)
       change_to_wib(event_param)
+    end
+
+    def user_params
+      params.require(:user).permit(:email, :password)
     end
 
     def setgoogleauth

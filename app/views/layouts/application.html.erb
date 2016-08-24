@@ -27,7 +27,6 @@
       <% if current_user.has_role?('admin') %>
         <%= link_to "Home", root_path %>
         <%= link_to "Events", events_path %>
-        <%= link_to "Receptionist", users_path(type: 'receptionist') %>
       <% end %>
       <%= current_user.email %>
       <%= link_to "Logout", destroy_user_session_path, method: :delete %><br/>

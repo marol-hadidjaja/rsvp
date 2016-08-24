@@ -66,7 +66,7 @@
 
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div>
-        <img src="<%= @event.images.first.file.url %>" style="max-width: 100%; margin-bottom: -5px;">
+        <img src="<%= "#{ rsvp_config[:domain] }/#{ @event.images.first.file.url }" %>" style="max-width: 100%; margin-bottom: -5px;">
       </div>
     </div>
   </body>

@@ -19,7 +19,6 @@
   $(document).ready(function(){
     $('#search_name').on('input', function(e){
       var name = $(this).val();
-      // $('#invitees-list').load('<%#= event_invitees_path(@event) %>', function(){})
       $.ajax({
         url: '<%= event_invitees_path(@event) %>',
         method: 'GET',
@@ -27,6 +26,41 @@
         data: { name: name },
         success: function(result){
           $('#invitees-list').html(result.html)
+        }
+      });
+    })
+
+    $('#invitees-list').on('click', '.update-arrival', function(){
+      var $td = $(this).parents('td'),
+        invitee_id = $td.find('.update-arrival').data('invitee-id');
+      $(this).parents('td').remove('.update_form');
+      $(this).hide();
+      var update_form_html = "";
+      $.ajax({
+        url: '/invitees/'+invitee_id+'/update_arrival',
+        method: 'GET',
+        dataType: 'json',
+        data: { partial: true },
+        success: function(result){
+          $td.prepend(result.html);
+        }
+      })
+    });
+
+    $('#invitees-list').on('click', 'button.confirm_arrival', function(){
+      var $td = $(this).parents('td'),
+        invitee_id = $td.find('.update-arrival').data('invitee-id'),
+        number_arrival = $td.find('.update_form #number_arrival').val();
+
+      $.ajax({
+        url: '/invitees/'+invitee_id+'/update_arrival',
+        method: 'POST',
+        beforeSend: function(xhr) { xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content')) },
+        data: { invitee: { number_arrival: number_arrival } },
+        dataType: 'json',
+        success: function(result){
+          $td.find('.update_arrival').show();
+          $td.find('.update_form').remove();
         }
       });
     })

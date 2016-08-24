@@ -7,7 +7,9 @@ class Event < ActiveRecord::Base
   validates :name, :event_id, :ceremonial_location_name, :ceremonial_location_address, :ceremonial_start, :ceremonial_end,
     :reception_location_name, :reception_location_address, :reception_start, :reception_end, :global_password, :invitation, presence: true
   has_attached_file :invitation, styles: { thumb: "100x100#" },
-    path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation.:extension",
+    # path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation.:extension",
+    path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation:extension",
+    # path: ":rails_root/public/event_images/user_id_:user_id/:style_:filename",
     url: "/invitation/:id/:style"
   validates_attachment_content_type :invitation, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
 
