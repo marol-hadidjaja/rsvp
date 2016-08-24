@@ -1,0 +1,6 @@
+<h2>Update Arrival</h2>
+Hi <%= @invitee.name %><br/>
+<%= form_tag update_arrival_invitee_path(@invitee) do %>
+  <%= select_tag 'invitee[number_arrival]', options_for_select(@numbers, @invitee.number_response) %>
+  <%= submit_tag 'Confirm' %>
+<% end %>

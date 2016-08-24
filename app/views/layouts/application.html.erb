@@ -24,13 +24,14 @@
 
   <body>
     <% unless current_user.has_role?("invitee") %>
-      <%= link_to "Home", root_path %>
-      <%= link_to "Events", events_path %>
+      <% if current_user.has_role?('admin') %>
+        <%= link_to "Home", root_path %>
+        <%= link_to "Events", events_path %>
+        <%= link_to "Receptionist", users_path(type: 'receptionist') %>
+      <% end %>
       <%= current_user.email %>
       <%= link_to "Logout", destroy_user_session_path, method: :delete %><br/>
     <% end %>
-    <%#= link_to "Invitees", invitees_path %>
-    <%#= link_to "Invitation", invitation_path %>
     <%= yield %>
   </body>
 </html>

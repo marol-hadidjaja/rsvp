@@ -8,22 +8,36 @@ require 'googleauth'
 
 class InviteesController < ApplicationController
   before_action :set_invitee, only: [:show, :edit, :update, :destroy]
-  before_filter :authenticate_user!, :except => [:update_coming]
+  # before_filter :authenticate_user!, :except => [:update_arrival_form, :update_arrival]
   before_action :set_event, only: [:index, :new, :create]
 
   # GET /invitees
   # GET /invitees.json
   def index
     if current_user.user_roles.empty?
+      # really a new user to RSVP
       if Event.where(user_id: current_user.id).empty?
+        # have not created any events
         redirect_to new_event_path
       else
+        # have created event and will show all invitees
         @event = Event.find(params[:event_id])
         @invitees = Event.find(params[:event_id]).invitees
       end
     else
+      # receptionist or admin
       @event = Event.find(params[:event_id])
-      @invitees = Event.find(params[:event_id]).invitees
+      if params[:name].present?
+        @invitees = Event.find(params[:event_id]).invitees.where("name LIKE '%#{ params[:name] }%'")
+        render json: { html: render_to_string('_table', layout: false) }
+=begin
+        respond_to do |format|
+          format.json{ { html: render_to_string("_table", layout: false) }.to_json }
+        end
+=end
+      else
+        @invitees = Event.find(params[:event_id]).invitees
+      end
     end
   end
 
@@ -232,7 +246,7 @@ class InviteesController < ApplicationController
   def invitation
     @invitation = Invitee.find_by_email(current_user.email)
     unless @invitation.nil?
-      @qr = RQRCode::QRCode.new("http://192.168.1.4:3000/invitees/#{ @invitation.id }/update_coming", :size => 20, :level => :h)
+      @qr = RQRCode::QRCode.new("http://192.168.1.4:3000/invitees/#{ @invitation.id }/update_arrival", :size => 20, :level => :h)
       respond_to do |format|
         format.html { render :invitation }
       end
@@ -253,13 +267,26 @@ class InviteesController < ApplicationController
     end
   end
 
+  # from QR Code
+  def update_arrival_form
+    @invitee = Invitee.find(params[:id])
+    @numbers = []
+    0.upto(@invitee.number) do |number|
+      @numbers << number
+    end
+    # authorize! :update_arrival
+    respond_to do |format|
+      format.html { render :update_arrival_form }
+    end
+  end
+
+  # action on CONFIRM number of persons in arrival
   def update_arrival
     @invitee = Invitee.find(params[:id])
-    # authorize! :update_arrival
     if @invitee.update(invitee_params)
       respond_to do |format|
         format.json { render json: { email: @invitee.email, name: @invitee.name, relation: @invitee.relation, message: "Update success" } }
-        format.html { redirect_to event_path(@invitee.event) }
+        format.html { redirect_to event_invitees_path(@invitee.event) }
       end
     else
       respond_to do |format|
@@ -326,7 +353,7 @@ class InviteesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
       params.require(:invitee)
-        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response, :arrival)
+        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response, :number_response, :number_arrival)
     end
 
     def set_event

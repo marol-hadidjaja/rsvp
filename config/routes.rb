@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     resources :invitees, shallow: true do
       member do
         post 'update_response', :defaults => { :format => :json }
+        get 'update_arrival' => 'invitees#update_arrival_form'
         post 'update_arrival'
       end
     end

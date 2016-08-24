@@ -4,7 +4,13 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    # still just implemented for showing receptionist for current user event
+    if params[:type].present?
+      @event = current_user.events.first
+      @users = []
+    else
+      @users = User.all
+    end
   end
 
   # GET /users/1
