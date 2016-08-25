@@ -1,7 +1,9 @@
 require 'rqrcode'
 require 'rqrcode_png'
+include ApplicationHelper
 
 class InviteeMailer < ApplicationMailer
+  add_template_helper(ApplicationHelper)
   default from: 'no-reply@rsvp.com'
 
   def invitation_email(event, invitee)

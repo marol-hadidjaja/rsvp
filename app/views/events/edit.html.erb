@@ -49,12 +49,12 @@
 
   <div class="field">
     <%= f.label :reception_start %><br/>
-    <%= f.text_field :reception_start, value: @event.reception_start.in_time_zone('Bangkok').strftime('%d-%B-%Y %H:%M') %>
+    <%= f.text_field :reception_start %>
   </div>
 
   <div class="field">
     <%= f.label :reception_end %><br/>
-    <%= f.text_field :reception_end, value: @event.reception_end.in_time_zone('Bangkok').strftime('%d-%B-%Y %H:%M') %>
+    <%= f.text_field :reception_end %>
   </div>
 
   <div class="field">

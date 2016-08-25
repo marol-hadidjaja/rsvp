@@ -1,17 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head></head>
-
-  <body>
-    Invitation email <%= @invitee.name %><br/>
-    email: <%= @invitee.email %><br/>
-    password: 12345678<br/>
-    Event <%= @event.name %><br/>
-    <%= link_to 'Update attendance', "http://localhost:3000#{ event_path(@event) }" %>
-    <%= @event.description %>
-  </body>
-</html>
-
 <!doctype html>
 <html class="no-js" lang="en" dir="ltr">
   <head>
@@ -26,7 +12,7 @@
         <h6 style="margin: 0; font-size: 16px;">Hi, <%= @invitee.name %></h6>
         <p style="color: rgba(0,0,0,0.84)">Thank you for joining us in our wedding day.</p>
         <p style="line-height: 1.4; color: rgba(0,0,0,0.84)">
-          <a href="<%= event_path(@event) %>">Please click here to get your guest number</a> and to confirm that you are attend in our wedding day.
+          <a href="<%= "#{ domain }#{ event_path(@event) }" %>">Please click here to get your guest number</a> and to confirm that you are attend in our wedding day.
         </p>
         <h6 style="margin-bottom: 5px; margin-top: 20px; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);">Login with:</h6>
         <p style="line-height: 1.4; margin: 0px;">Email: <strong><%= @invitee.email %></strong></p>
@@ -59,14 +45,14 @@
         </div>
 
         <div>
-          <p>Download Invitation: <a href="<%= @event.invitation.url %>"><%= @event.name.downcase.delete(' ') %></a></p>
+          <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>"><%= @event.name.downcase.delete(' ') %></a></p>
         </div>
       </div>
     </div>
 
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div>
-        <img src="<%= "#{ rsvp_config[:domain] }/#{ @event.images.first.file.url }" %>" style="max-width: 100%; margin-bottom: -5px;">
+        <%= email_image_tag(@event.images.first, { style: "max-width: 100%; margin-bottom: -5px;" }) %>
       </div>
     </div>
   </body>

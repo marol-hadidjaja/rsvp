@@ -189,7 +189,7 @@ class EventsController < ApplicationController
 
   def update
     @event = Event.find(params[:id])
-    binding.pry
+
     if @event.update(event_params)
       if !params[:event_images].nil? && !params[:event_images].empty?
         params[:event_images].each do |image|
