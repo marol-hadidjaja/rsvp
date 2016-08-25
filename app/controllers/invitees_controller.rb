@@ -157,7 +157,7 @@ class InviteesController < ApplicationController
       end
       g_event.attendees.delete_if{ |attendee| attendee.email == attendees[:email] }
 
-      result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+      result = client.update_event('primary', g_event.id, g_event)
       respond_to do |format|
         format.html { redirect_to event_invitees_url(@invitee.event), notice: 'Invitee was successfully destroyed.' }
         format.json { head :no_content }
@@ -203,7 +203,7 @@ class InviteesController < ApplicationController
             # create user for login and retrieve invitation
             if @users.empty?
               logger.debug "-------------------------------------not find user #{ row.inspect }"
-              @user = User.create(email: row['email'], password: '12345678', password_confirmation: '12345678')
+              @user = User.create(email: row['email'], password: @event.global_password, password_confirmation: @event.global_password)
               @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
               logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
             else
@@ -243,7 +243,11 @@ class InviteesController < ApplicationController
   def resend_invitation
     @invitee = Invitee.find(params[:id])
     @event = @invitee.event
-    InviteeMailer.invitation_email(@event, @invitee).deliver
+    if @invitee.update_at > @invitee.created_at
+      InviteeMailer.invitation_response(@event, @invitee).deliver_now
+    else
+      InviteeMailer.invitation_email(@event, @invitee).deliver_now
+    end
     respond_to do |format|
       format.html { redirect_to event_invitees_path(@event), notice: 'resend invitation success' }
     end

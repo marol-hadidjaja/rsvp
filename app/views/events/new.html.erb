@@ -57,6 +57,16 @@
     <%= f.text_field :reception_end %>
   </div>
 
+  <div class="field">
+    <%= f.label :invitation %>
+    <%= file_field_tag "event[invitation]" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :images %>
+    <%= file_field_tag "event_images[]", multiple: true %>
+  </div>
+
   <div class="actions">
     <%= f.submit "Create" %>
   </div>

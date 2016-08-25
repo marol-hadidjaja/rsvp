@@ -46,14 +46,14 @@
         </div>
 
         <div>
-          <p>Download Invitation: <a href="<%= @event.invitation.url %>" target="_blank"><%= @event.name.downcase.delete(' ') %></a></p>
+          <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>" target="_blank"><%= @event.name.downcase.delete(' ') %></a></p>
         </div>
       </div>
     </div>
 
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div>
-        <img src="<%= @event.images.first.file.url %>" style="max-width: 100%; margin-bottom: -5px;">
+        <%= email_image_tag(@event.images.first, style: "max-width: 100%; margin-bottom: -5px;") %>
       </div>
     </div>
   </body>

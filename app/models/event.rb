@@ -4,8 +4,8 @@ class Event < ActiveRecord::Base
   has_many :users, through: :user_roles
   has_many :user_roles
   has_and_belongs_to_many :images
-  validates :name, :event_id, :ceremonial_location_name, :ceremonial_location_address, :ceremonial_start, :ceremonial_end,
-    :reception_location_name, :reception_location_address, :reception_start, :reception_end, :global_password, :invitation, presence: true
+  validates :name, :ceremonial_location_name, :ceremonial_location_address, :ceremonial_start, :ceremonial_end,
+    :reception_location_name, :reception_location_address, :reception_start, :reception_end, :global_password, presence: true
   has_attached_file :invitation, styles: { thumb: "100x100#" },
     # path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation.:extension",
     path: ":rails_root/public/event_images/user_id_:user_id/:style_invitation:extension",

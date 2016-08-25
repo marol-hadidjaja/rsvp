@@ -23,6 +23,10 @@ Things you may want to cover:
 ssh -i ~/.ssh/id_rsa-olivia olivia@202.148.7.143
 scp -i ~/.ssh/id_rsa-olivia -r rsvp/ olivia@202.148.7.143:/home/olivia
 
+UBAH pas abis scp:
+ubah config/database.yml
+change CLIENT_SECRETS_PATH to client_id-quickstart-online.json
+
 * ...
 
 
