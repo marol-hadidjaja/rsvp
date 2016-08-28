@@ -1,5 +1,5 @@
 <div class="input">
-  <% if @invitee.updated_at > @invitee.created_at %>
+  <% if @invitee.number_response.present? %>
     <% # already confirmed %>
     <div class="input">
       <form>
@@ -25,7 +25,9 @@
 
               <h6>I will come for <%= @invitee.number_response %> person(s)</h6>
 
-              <%= image_tag @qrcode_png.to_data_url %><br/>
+              <% if @invitee.number_response > 0 %>
+                <%= image_tag @qrcode_png.to_data_url %>
+              <% end %>
             </div><!-- finishForm -->
 
             <%= link_to "Logout", destroy_user_session_path, method: :delete, class: "button logout" %>

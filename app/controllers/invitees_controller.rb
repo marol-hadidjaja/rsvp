@@ -243,7 +243,7 @@ class InviteesController < ApplicationController
   def resend_invitation
     @invitee = Invitee.find(params[:id])
     @event = @invitee.event
-    if @invitee.update_at > @invitee.created_at
+    if @invitee.number_response.present?
       InviteeMailer.invitation_response(@event, @invitee).deliver_now
     else
       InviteeMailer.invitation_email(@event, @invitee).deliver_now
@@ -267,6 +267,7 @@ class InviteesController < ApplicationController
 
   def update_response
     @invitee = Invitee.find(params[:id])
+    binding.pry
     # authorize! :update_response
     if @invitee.update(invitee_params)
       redirect_to @invitee.event
@@ -368,8 +369,13 @@ class InviteesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
+      params[:invitee][:ceremonial_response] = false unless params[:invitee][:ceremonial_response].present?
+      params[:invitee][:reception_response] = false unless params[:invitee][:reception_response].present?
+      params[:invitee][:number_response] = 0 if !params[:invitee][:ceremonial_response].present? && !params[:invitee][:reception_response].present?
       params.require(:invitee)
-        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response, :number_response, :number_arrival)
+        .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response,
+                :number_response, :number_arrival)
+
     end
 
     def set_event

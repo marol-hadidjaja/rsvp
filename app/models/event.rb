@@ -38,4 +38,9 @@ class Event < ActiveRecord::Base
   def the_day
     self.ceremonial_start.strftime("%A, %d<sup>#{ self.ceremonial_start.day.ordinal }</sup> %B %Y").html_safe
   end
+
+  def total_invitees
+    # self.sum(:number)
+    Invitee.where(event_id: self.id).sum(:number)
+  end
 end

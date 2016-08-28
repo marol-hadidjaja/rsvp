@@ -9,28 +9,41 @@
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
 
     <%= stylesheet_link_tag '/stylesheets/foundation.min.css', '/stylesheets/foundation-datepicker.min.css' %>
+    <%= stylesheet_link_tag '/stylesheets/font-awesome.min.css' %>
     <%= stylesheet_link_tag '/stylesheets/style.css' %>
     <%= javascript_include_tag '/javascripts/jquery.js', '/javascripts/foundation.min.js', '/javascripts/foundation-datepicker.min.js' %>
     <%= javascript_include_tag '/javascripts/modernizr.custom.86080.js' %>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     <%= csrf_meta_tags %>
+  </head>
+
+  <body>
+    <div class="row content" style="padding: 0 0 2% 0px;">
+      <div class="large-12 columns">
+        <% unless current_user.has_role?("invitee") %>
+          <div class="row nav" style=" margin-top: 30px; margin-bottom: 10px;">
+            <div class="large-6 columns left">
+              <% if current_user.has_role?('admin') %>
+                <%= link_to "List Events", events_path, style: "margin-right: 20px; text-transform: uppercase; font-weight: bold;" %>
+              <% end %>
+            </div>
+
+            <div class="large-6 columns right" style="float: right; text-align: right;">
+              <%= current_user.email %>
+              <%= link_to "Logout", destroy_user_session_path, method: :delete, style: "text-transform: uppercase; margin-left: 20px; font-weight: bold;" %><br/>
+            </div>
+          </div><!-- nav -->
+        <% end %>
+
+        <%= yield %>
+      </div><!-- .large-12.columns -->
+    </div><!-- .row.content -->
+
     <script>
       $(document).ready(function(){
         $(document).foundation();
       });
     </script>
-  </head>
-
-  <body>
-    <% unless current_user.has_role?("invitee") %>
-      <% if current_user.has_role?('admin') %>
-        <%= link_to "Home", root_path %>
-        <%= link_to "Events", events_path %>
-      <% end %>
-      <%= current_user.email %>
-      <%= link_to "Logout", destroy_user_session_path, method: :delete %><br/>
-    <% end %>
-    <%= yield %>
   </body>
 </html>

@@ -1,4 +1,4 @@
-<%= form_for [@event, @invitee] do |f| %>
+<%= form_for [@event, @invitee], class: "edit_invitee" do |f| %>
   <% if @invitee.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@invitee.errors.count, "error") %> prohibited this invitee from being saved:</h2>
@@ -13,32 +13,45 @@
 
   <%= f.hidden_field :event_id %>
   <div class="field">
-    <%= f.label :name %><br>
+    <%= f.label :name %>
     <%= f.text_field :name, autofocus: true %>
   </div>
+
   <div class="field">
-    <%= f.label :relation %><br>
+    <%= f.label :relation %>
     <%#= f.text_field :relation %>
     <%= f.select :relation, [] %>
   </div>
+
   <div class="field">
-    <%= f.label :number %><br>
+    <%= f.label :number %>
     <%= f.number_field :number %>
   </div>
+
   <div class="field">
-    <%= f.label :email %><br>
+    <%= f.label :email %>
     <%= f.email_field :email %>
   </div>
+
   <div class="field">
-    <%= f.label :address %><br>
-    <%= f.text_area :address %>
+    <%= f.label :address %>
+    <%= f.text_area :address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
   </div>
+
   <div class="field">
     <%= f.label :phone %><br>
     <%= f.text_field :phone %>
   </div>
+
   <div class="actions">
-    <%= f.submit %>
+  </div>
+
+  <div class="actions">
+    <a href="#" class="button">
+      <%= f.submit style: "background: transparent; border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
+    </a>
+
+    <%= link_to 'Back', event_invitees_path, class: "button", style: "text-transform: uppercase; font-weight: bold line-height: inherit;" %>
   </div>
 <% end %>
 

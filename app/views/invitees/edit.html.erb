@@ -1,6 +1,3 @@
-<h1>Editing Invitee</h1>
+<h1><%= @invitee.name %></h1>
 
 <%= render 'form' %>
-
-<%= link_to 'Show', @invitee %> |
-<%= link_to 'Back', event_invitees_path(@invitee.event) %>

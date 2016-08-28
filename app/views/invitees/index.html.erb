@@ -1,19 +1,36 @@
+<% unless current_user.has_role?("invitee") %>
+  <div class="row" style="margin-bottom: 20px; margin-top: 30px;">
+    <div class="large-12 columns">
+      <div style="border-bottom: 1px solid #ddd;">
+        <h2 style="display: inline;"><%= @event.name %></h2>
+        <% if current_user.has_role?("admin") %>
+          <%= link_to 'Edit Event', edit_event_path(@event), style: "display: inline;" %>
+          <p style="float: right; display: inline; margin-top: 20px;">Total Guest: <strong><%= @event.total_invitees %> People</strong></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% unless current_user.has_role?("invitee") %>
+  <div class="row">
+    <div class="large-6 columns">
+      <%= link_to 'New Invitee', new_event_invitee_path, class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+    </div>
+    <div class="large-6 columns" style="text-align: right;">
+      <%= link_to 'Import', event_invitees_import_path, class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+      <%= link_to 'Export', event_invitees_export_path(:format => :csv), class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+    </div>
+  </div>
+
+  <%= text_field_tag 'search_name', nil, placeholder: "Search by Name" %>
+<% end %>
+
 <p id="notice"><%= notice %></p>
 
-<h1>Listing Invitees</h1>
-<% unless current_user.has_role?("invitee") %>
-  <% if current_user.has_role?("admin") %>
-    <%= link_to 'Edit Event', edit_event_path(@event) %><br/>
-    <%= link_to 'New Invitee', new_event_invitee_path %><br/>
-    <%= link_to 'Import', event_invitees_import_path %><br/>
-    <%= link_to 'Export', event_invitees_export_path(:format => :csv) %><br/>
-  <% end %>
-  <%= text_field_tag 'search_name' %>
-
-  <div id='invitees-list'>
-    <%= render partial: 'table' %>
-  </div><!-- #invitees-list -->
-<% end %>
+<div id='invitees-list'>
+  <%= render partial: 'table' %>
+</div><!-- #invitees-list -->
 
 <script>
   $(document).ready(function(){
