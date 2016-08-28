@@ -26,6 +26,8 @@ scp -i ~/.ssh/id_rsa-olivia -r rsvp/ olivia@202.148.7.143:/home/olivia
 UBAH pas abis scp:
 ubah config/database.yml
 change CLIENT_SECRETS_PATH to client_id-quickstart-online.json
+change ApplicationHelper only return website domain
+https://www.dropbox.com/sh/3jqs7bf00b0qhfm/AADrG1DVoDR5lOLj2MoCyHvVa?dl=0
 
 * ...
 

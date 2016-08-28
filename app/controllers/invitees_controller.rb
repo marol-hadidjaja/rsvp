@@ -125,6 +125,9 @@ class InviteesController < ApplicationController
         if @user.update_attributes({ email: invitee_params[:email] })
           format.html { redirect_to @invitee, notice: 'Invitee was successfully updated.' }
           format.json { render :show, status: :ok, location: @invitee }
+        else
+          format.html { render :edit }
+          format.json { render json: @invitee.errors, status: :unprocessable_entity }
         end
       else
         format.html { render :edit }
