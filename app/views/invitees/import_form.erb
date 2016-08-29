@@ -4,12 +4,23 @@
   <% end %>
 
   <% @result_import[:errors].each do |r| %>
-    <%= r[:email] %>: <%= r[:errors].map{ |k, v| "#{ k } #{ v.join(', ') }" }.join('; ').html_safe %>
+    <% if r.key?(:email) %>
+      <%= r[:email] %>:
+    <% else %>
+      <%= r['name'] %>;
+    <% end %>
+    <%= r[:errors].map{ |k, v| "#{ k } #{ v.join(', ') }" }.join('; ').html_safe %>
     <br/>
   <% end %>
 <% end %>
 
+<% if @error.present? %>
+  <%= @error %>
+<% end %>
+
 <%= form_tag(event_invitees_import_path(@event), :multipart => true) do %>
+  <%= check_box_tag :email_present, 'true' %>
+  <%= label :invitee, :email, "Email present?" %>
   <%= file_field_tag(:invitees) %>
   <%= submit_tag('Import') %>
 <% end %>

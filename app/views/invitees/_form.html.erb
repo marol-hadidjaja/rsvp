@@ -20,7 +20,7 @@
   <div class="field">
     <%= f.label :relation %>
     <%#= f.text_field :relation %>
-    <%= f.select :relation, [] %>
+    <%= f.select :relation, @relations_h %>
   </div>
 
   <div class="field">
@@ -44,14 +44,11 @@
   </div>
 
   <div class="actions">
-  </div>
-
-  <div class="actions">
     <a href="#" class="button">
       <%= f.submit style: "background: transparent; border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
     </a>
 
-    <%= link_to 'Back', event_invitees_path, class: "button", style: "text-transform: uppercase; font-weight: bold line-height: inherit;" %>
+    <%= link_to 'Back', event_invitees_path(@invitee.event), class: "button", style: "text-transform: uppercase; font-weight: bold line-height: inherit;" %>
   </div>
 <% end %>
 
@@ -79,8 +76,9 @@
       createTag: function (params) {
         return { id: params.term, text: params.term };
       },
+      /*
       ajax: {
-        url: "<%= invitees_relations_path %>",
+        url: "<%#= invitees_relations_path %>",
         dataType: 'json',
         delay: 250,
         data: function (params) {
@@ -94,10 +92,15 @@
         },
         cache: true
       },
+      */
       escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
       minimumInputLength: 1,
       templateResult: formatRepo, // omitted for brevity, see the source of this page
-      templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+      templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+      placeholder: "Relation"
     });
+    //console.log("<%= @invitee.relation %>")
+    //$("#invitee_relation").select2("val", "<%#= @invitee.relation %>");
+    $("#invitee_relation").val("<%= @invitee.relation %>").change();
   });
 </script>

@@ -53,6 +53,12 @@ class InviteesController < ApplicationController
 
   # GET /invitees/1/edit
   def edit
+    @invitee = Invitee.find(params[:id])
+    relations = Invitee.all.map(&:relation).uniq
+    @relations_h = []
+    relations.each do |relation|
+      @relations_h.push([relation, relation ])
+    end
   end
 
   # POST /invitees
@@ -122,12 +128,17 @@ class InviteesController < ApplicationController
     respond_to do |format|
       if @invitee.update(invitee_params)
         @user = User.find_by_email(prev_email)
-        if @user.update_attributes({ email: invitee_params[:email] })
-          format.html { redirect_to @invitee, notice: 'Invitee was successfully updated.' }
-          format.json { render :show, status: :ok, location: @invitee }
+        unless @user.nil?
+          if @user.update_attributes({ email: invitee_params[:email] })
+            format.html { redirect_to event_invitees_path(@invitee.event), notice: 'Invitee was successfully updated.' }
+            format.json { render :show, status: :ok, location: @invitee }
+          else
+            format.html { render :edit }
+            format.json { render json: @invitee.errors, status: :unprocessable_entity }
+          end
         else
-          format.html { render :edit }
-          format.json { render json: @invitee.errors, status: :unprocessable_entity }
+          format.html { redirect_to event_invitees_path(@invitee.event), notice: 'Invitee was successfully updated.' }
+          format.json { render :show, status: :ok, location: @invitee }
         end
       else
         format.html { render :edit }
@@ -178,60 +189,82 @@ class InviteesController < ApplicationController
   def import
     @event = Event.find(params[:event_id])
     @result_import = { errors: [], success: [] }
+
     unless session.has_key?(:credentials)
       redirect_to('/oauth2callback')
     else
-      spreadsheet = open_spreadsheet(params[:invitees])
-      spreadsheet.sheets.each do |sheet| # looping all sheet
-        spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
-        header = spreadsheet.row(1).map{ |h| h.downcase }
-        header_mapping = { 'nama': 'name',
-                           'email': 'email',
-                           'relasi': 'relation',
-                           'jumlah': 'number',
-                           'alamat': 'address',
-                           'telepon': 'phone' }
-        new_header = header.map{ |h| header_mapping[h.to_sym] }
-        (2..spreadsheet.last_row).each do |i| # looping all excel data
-          row = Hash[[new_header, spreadsheet.row(i)].transpose]
-          # member = Member.find_by_id_card_number(row["id_card_number"]) || Member.new(row.reject{ |k, r| k.nil? })
-          row["event_id"] = @event.id
-          invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
-          invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
-          unless invitee.save
-            @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
-          else
-            @result_import[:success] << { email: row['email'] }
-            @users = User.where(email: row['email'])
-            # create user for login and retrieve invitation
-            if @users.empty?
-              logger.debug "-------------------------------------not find user #{ row.inspect }"
-              @user = User.create(email: row['email'], password: @event.global_password, password_confirmation: @event.global_password)
-              @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
-              logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+      if params[:invitees].present?
+        spreadsheet = open_spreadsheet(params[:invitees])
+        spreadsheet.sheets.each do |sheet| # looping all sheet
+          spreadsheet.default_sheet = "#{sheet}" # picking current sheet as default to be processing
+          header = spreadsheet.row(1).map{ |h| h.downcase }
+          header_mapping = { 'nama': 'name',
+                             'email': 'email',
+                             'relasi': 'relation',
+                             'jumlah': 'number',
+                             'alamat': 'address',
+                             'telepon': 'phone' }
+          new_header = header.map{ |h| header_mapping[h.to_sym] }
+          (2..spreadsheet.last_row).each do |i| # looping all excel data
+            row = Hash[[new_header, spreadsheet.row(i)].transpose]
+            row["event_id"] = @event.id
+            if params[:email_present] === "true"
+              invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
+              invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
+
+              unless invitee.save
+                @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
+              else
+                @result_import[:success] << { email: row['email'] }
+                @users = User.where(email: row['email'])
+
+                # create user for login and retrieve invitation
+                if @users.empty?
+                  logger.debug "-------------------------------------not find user #{ row.inspect }"
+                  @user = User.create(email: row['email'], password: @event.global_password, password_confirmation: @event.global_password)
+                  @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+                  # logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
+                  InviteeMailer.invitation_email(@event, invitee).deliver
+                else
+                  @user = @users.first
+                  @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+                end
+              end # check invitee.save
             else
-              @user = @users.first
-              @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
-            end
-          end
-        end # looping all excel data
-      end # looping all sheets
+              invitee = Invitee.new(row.reject{ |k, r| k == "email" })
+              unless invitee.save
+                @result_import[:errors] << { name: row['name'], errors: invitee.errors.messages }
+              else
+                @result_import[:success] << { name: row['name'] }
+              end
+            end # check params[:email_present]
+          end # looping all excel data
+        end # looping all sheets
 
-      client_opts = JSON.parse(session[:credentials])
-      auth_client = Signet::OAuth2::Client.new(client_opts)
-      client = Google::Apis::CalendarV3::CalendarService.new
-      client.authorization = auth_client
+        if params[:email_present] === "true"
+          client_opts = JSON.parse(session[:credentials])
+          auth_client = Signet::OAuth2::Client.new(client_opts)
+          client = Google::Apis::CalendarV3::CalendarService.new
+          client.authorization = auth_client
 
-      g_event = client.get_event('primary', @event.event_id)
-      g_event.attendees = @result_import[:success]
+          g_event = client.get_event('primary', @event.event_id)
+          g_event.attendees = @result_import[:success]
 
-      # send_notifications: true
-      result = client.update_event('primary', g_event.id, g_event)
-      print result.updated
+          # send_notifications: true
+          result = client.patch_event('primary', g_event.id, g_event)
+          print result.updated
+        end
 
-      respond_to do |format|
-        format.html { render :import_form }
-      end
+        respond_to do |format|
+          format.html { render :import_form }
+        end
+      else
+        # user not select any file
+        @error = "Please select a file to import"
+        respond_to do |format|
+          format.html { render :import_form }
+        end
+      end # check params[:invitees] (excel)
     end
   end
 
@@ -270,7 +303,7 @@ class InviteesController < ApplicationController
 
   def update_response
     @invitee = Invitee.find(params[:id])
-    binding.pry
+
     # authorize! :update_response
     if @invitee.update(invitee_params)
       redirect_to @invitee.event
@@ -372,9 +405,12 @@ class InviteesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
-      params[:invitee][:ceremonial_response] = false unless params[:invitee][:ceremonial_response].present?
-      params[:invitee][:reception_response] = false unless params[:invitee][:reception_response].present?
-      params[:invitee][:number_response] = 0 if !params[:invitee][:ceremonial_response].present? && !params[:invitee][:reception_response].present?
+      path = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
+      if path[:action] == "update_response"
+        params[:invitee][:ceremonial_response] = false unless params[:invitee][:ceremonial_response].present?
+        params[:invitee][:reception_response] = false unless params[:invitee][:reception_response].present?
+        params[:invitee][:number_response] = 0 if !params[:invitee][:ceremonial_response].present? && !params[:invitee][:reception_response].present?
+      end
       params.require(:invitee)
         .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response,
                 :number_response, :number_arrival)

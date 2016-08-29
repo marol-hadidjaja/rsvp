@@ -17,7 +17,7 @@ require 'rqrcode_png'
 
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
 APPLICATION_NAME = 'Google Calendar API Ruby Quickstart'
-CLIENT_SECRETS_PATH = File.join(Dir.home, 'rsvp', 'client_id-quickstart.json')
+CLIENT_SECRETS_PATH = File.join(Dir.pwd, 'client_id-quickstart.json')
 CREDENTIALS_PATH = File.join(Dir.home, '.credentials', "calendar-ruby-quickstart.json")
 #SCOPE = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email"
 SCOPE = ["https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/userinfo.email"]
@@ -457,7 +457,7 @@ class EventsController < ApplicationController
         guestsCanSeeOtherGuests: false
       })
 
-      if result = client.insert_event('primary', new_event, send_notifications: true)
+      if result = client.insert_event('primary', new_event) #, send_notifications: true)
         event.event_id = result.id
         event.save
         current_user.user_roles.create(event: event, role: Role.find_by_name('admin'))

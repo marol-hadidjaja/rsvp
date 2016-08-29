@@ -109,6 +109,11 @@ html,body {
   margin:0;
   padding:0;
 }
+.content .button{
+  padding: 7px 20px;
+  font-size: 14px;
+  background-color: #008CBA;
+}
 .cb-slideshow,
 .cb-slideshow:after {
   position: fixed;
