@@ -40,7 +40,6 @@ class Event < ActiveRecord::Base
   end
 
   def total_invitees
-    # self.sum(:number)
-    Invitee.where(event_id: self.id).sum(:number)
+    Invitee.where(event_id: self.id).sum(:number_response)
   end
 end

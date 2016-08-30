@@ -69,6 +69,7 @@
       .fieldset .desc p.first{ color: rgba(0,0,0,0.87); }
 
 .button{ background-color: #86b6a0; }
+.select2-container{ margin-bottom: 1rem !important; }
 
 [type=checkbox], [type=file], [type=radio]{
   margin-bottom: 0.5rem;
@@ -99,6 +100,38 @@
 .logout{ margin-top: 15px; }
 
 .scan img{ max-width: 100px; }
+
+.content{ padding: 0 0 2% 0; }
+
+.nav{ margin-top: 10px; margin-bottom: 10p; }
+.nav a{ text-transform: uppercase; font-weight: bold; }
+.nav .left a{ margin-right: 20px; }
+.nav .right{ text-align: right; }
+.nav .right a{ margin-left: 20px; }
+
+.field textarea{ padding: 0.5rem; margin: 0 0 1rem 0; }
+
+.field label{ 
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.45);
+    font-weight: bold;
+}
+
+.row.sec h4 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.actions.btn{ margin-top: 15px; }
+.actions.btn .button{ background: #008cba; }
+.actions.btn input{
+    background: transparent;
+    border: none;
+    text-transform: uppercase;
+    color: white;
+    font-weight: bold;
+}
 
 /* =========== Slider ============= */
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td {

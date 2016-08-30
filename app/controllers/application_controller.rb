@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
   def store_location
     unless params[:controller] == "sessions"
-      if params[:controller] == "/events"
+      if params[:controller] == "events"
         # /events/1
         session[:event_id] = params[:id]
       else

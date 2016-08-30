@@ -43,8 +43,8 @@ Rails.application.configure do
       :address              => "smtp.gmail.com",
       :port                 => 587,
       :domain               => "gmail.com",
-      :user_name            => "noreply.online.invitation@gmail.com",
-      :password             => "onlineinvitation2016",
+      :user_name            => "laurensia90id@gmail.com",
+      :password             => "maria280790",
       :authentication       => :plain,
       :enable_starttls_auto => true
 }

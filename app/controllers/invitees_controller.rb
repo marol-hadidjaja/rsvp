@@ -49,6 +49,11 @@ class InviteesController < ApplicationController
   # GET /invitees/new
   def new
     @invitee = Invitee.new(event_id: @event.id)
+    relations = Invitee.all.map(&:relation).uniq
+    @relations_h = []
+    relations.each do |relation|
+      @relations_h.push([relation, relation ])
+    end
   end
 
   # GET /invitees/1/edit
@@ -113,6 +118,11 @@ class InviteesController < ApplicationController
       end
 =end
     else
+      relations = Invitee.all.map(&:relation).uniq
+      @relations_h = []
+      relations.each do |relation|
+        @relations_h.push([relation, relation ])
+      end
       respond_to do |format|
         format.html { render :new }
         format.json { render json: @invitee.errors, status: :unprocessable_entity }
@@ -133,6 +143,11 @@ class InviteesController < ApplicationController
             format.html { redirect_to event_invitees_path(@invitee.event), notice: 'Invitee was successfully updated.' }
             format.json { render :show, status: :ok, location: @invitee }
           else
+            relations = Invitee.all.map(&:relation).uniq
+            @relations_h = []
+            relations.each do |relation|
+              @relations_h.push([relation, relation ])
+            end
             format.html { render :edit }
             format.json { render json: @invitee.errors, status: :unprocessable_entity }
           end
@@ -141,6 +156,11 @@ class InviteesController < ApplicationController
           format.json { render :show, status: :ok, location: @invitee }
         end
       else
+        relations = Invitee.all.map(&:relation).uniq
+        @relations_h = []
+        relations.each do |relation|
+          @relations_h.push([relation, relation ])
+        end
         format.html { render :edit }
         format.json { render json: @invitee.errors, status: :unprocessable_entity }
       end

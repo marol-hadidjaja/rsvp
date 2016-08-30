@@ -1,4 +1,4 @@
-<%= form_for [@event, @invitee], class: "edit_invitee" do |f| %>
+<%= form_for [@event, @invitee] do |f| %>
   <% if @invitee.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@invitee.errors.count, "error") %> prohibited this invitee from being saved:</h2>
@@ -19,12 +19,11 @@
 
   <div class="field">
     <%= f.label :relation %>
-    <%#= f.text_field :relation %>
     <%= f.select :relation, @relations_h %>
   </div>
 
   <div class="field">
-    <%= f.label :number %>
+    <%= f.label :guest, for: "invitee_number" %>
     <%= f.number_field :number %>
   </div>
 
@@ -39,16 +38,14 @@
   </div>
 
   <div class="field">
-    <%= f.label :phone %><br>
+    <%= f.label :phone %>
     <%= f.text_field :phone %>
   </div>
 
   <div class="actions">
-    <a href="#" class="button">
-      <%= f.submit style: "background: transparent; border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
-    </a>
+    <%= f.submit class: "button", style: "border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
 
-    <%= link_to 'Back', event_invitees_path(@invitee.event), class: "button", style: "text-transform: uppercase; font-weight: bold line-height: inherit;" %>
+    <%= link_to 'Back', event_invitees_path(@invitee.event), class: "button", style: "text-transform: uppercase; font-weight: bold; line-height: inherit;" %>
   </div>
 <% end %>
 

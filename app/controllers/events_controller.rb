@@ -269,9 +269,15 @@ class EventsController < ApplicationController
     @event = Event.find(params[:event_id])
     @user = User.new(user_params)
     @user.password_confirmation = @user.password
-    # if @user.save
-    @event.user_roles.create(role: Role.find_by_name("receptionist"), user: @user)
-    redirect_to event_receptionist_path(@event)
+    if @user.save
+      @event.user_roles.create(role: Role.find_by_name("receptionist"), user: @user)
+      redirect_to event_receptionist_path(@event)
+    else
+      respond_to do |format|
+        format.html { render :receptionist_new }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def authorize
