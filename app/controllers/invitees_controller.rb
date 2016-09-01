@@ -323,10 +323,12 @@ class InviteesController < ApplicationController
 
   def update_response
     @invitee = Invitee.find(params[:id])
+    @event = @invitee.event
 
     # authorize! :update_response
     if @invitee.update(invitee_params)
-      redirect_to @invitee.event
+      InviteeMailer.invitation_response(@event, @invitee).deliver_now
+      redirect_to event_path(@invitee.event)
     else
       respond_to do |format|
         format.html { render :show }
@@ -425,8 +427,7 @@ class InviteesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def invitee_params
-      path = Rails.application.routes.recognize_path(request.env['PATH_INFO'])
-      if path[:action] == "update_response"
+      if params[:action] == "update_response"
         params[:invitee][:ceremonial_response] = false unless params[:invitee][:ceremonial_response].present?
         params[:invitee][:reception_response] = false unless params[:invitee][:reception_response].present?
         params[:invitee][:number_response] = 0 if !params[:invitee][:ceremonial_response].present? && !params[:invitee][:reception_response].present?

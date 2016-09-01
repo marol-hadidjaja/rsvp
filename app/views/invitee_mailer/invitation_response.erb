@@ -35,14 +35,15 @@
             <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Wedding Reception</strong></h6>
             <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.reception_start.in_time_zone('Bangkok').strftime('%H:%M') %> WIB</h5>
             <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.reception_location_name %></p>
-            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.reception_location.address %></p>
+            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.reception_location_address %></p>
           </div>
         </div>
 
         <p style="margin: 0; font-size: 16px; margin-bottom: 15px;">I will come for <%= @invitee.number_response %> person(s)</p>
 
         <div>
-          <img src="<%= @qrcode_png.to_data_url %>" style="max-width: 100px">
+          <!--<img src="<%#= @qrcode_png.to_data_url %>" style="max-width: 100px">-->
+          <%= email_image_tag(@qrcode_png.to_data_url, style: "max-width: 100px") %>
         </div>
 
         <div>

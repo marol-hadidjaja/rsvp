@@ -19,7 +19,9 @@
   </head>
 
   <body>
-    <div class="row content" style="padding: 0 0 2% 0px;">
+    <% unless params[:controller] == "events" && params[:action] == "show" %>
+      <div class="row content" style="padding: 0 0 2% 0px;">
+    <% end%>
       <div class="large-12 columns">
         <% unless current_user.has_role?("invitee") %>
           <div class="row nav" style=" margin-top: 30px; margin-bottom: 10px;">
@@ -38,7 +40,9 @@
 
         <%= yield %>
       </div><!-- .large-12.columns -->
-    </div><!-- .row.content -->
+    <% unless params[:controller] == "events" && params[:action] == "show" %>
+      </div><!-- .row.content -->
+    <% end %>
 
     <script>
       $(document).ready(function(){
