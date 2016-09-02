@@ -202,6 +202,17 @@ class EventsController < ApplicationController
           @event.images << Image.create(file: image, user: current_user)
         end
       end
+
+      if params[:delete_images].present?
+        list = JSON.parse(params[:delete_images])
+        binding.pry
+        unless list.empty?
+          list.each do |image_id|
+            @event.images.delete(image_id)
+          end
+        binding.pry
+        end
+      end
       respond_to do |format|
         format.html { redirect_to event_invitees_path(@event) }
       end
@@ -222,6 +233,10 @@ class EventsController < ApplicationController
     end
     send_file(image_path, filename: File.basename(@image.file_file_name, File.extname(@image.file_file_name)),
               type: @image.file_content_type, disposition: :inline)
+  end
+
+  def image_delete
+    @image = Image.find(params[:image_id])
   end
 
   def invitation

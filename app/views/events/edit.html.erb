@@ -87,11 +87,13 @@
   </div>
 
   <div class="field" style="margin-top: 20px; margin-bottom: 20px;">
+    <%= hidden_field_tag 'delete_images', '[]' %>
     <%= f.label :images %>
     <%= file_field_tag "event_images[]", multiple: true %>
     <% unless @event.images.empty? %>
       <% @event.images.each do |image| %>
-        <img src='<%= image.file(:thumb) %>'>
+        <%= image_tag image.file(:thumb), 'data-imageid': image.id %>
+        <a class='delete-image' data-imageid="<%= image.id %>"><i class="fa fa-times-circle" aria-hidden="true"></i></a>
       <% end %>
     <% end %>
   </div>
@@ -108,5 +110,16 @@
       format: 'dd-mm-yyyy hh:ii',
       disableDblClickSelection: true,
       pickTime: true })
+
+    $('.delete-image').click(function(){
+      var image_id = $(this).data('imageid');
+      var input_value = $('#delete_images').val(),
+        set_input_value = JSON.parse(input_value);
+
+      set_input_value.push(image_id);
+      $('img[data-imageid="'+ image_id +'"]').hide();
+      $(this).hide();
+      $('#delete_images').val(JSON.stringify(set_input_value));
+    });
   })
 </script>

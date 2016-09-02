@@ -11,46 +11,58 @@
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div style="padding: 30px 30px 20px 30px;">
         <h6 style="margin: 0; font-size: 18px;">Hi, <%= @invitee.name %></h6>
-        <p style="color: rgba(0,0,0,0.84)">Thank you for joining</p>
-        <p style="line-height: 1.4; color: rgba(0,0,0,0.84)">Don't forget our wedding was held on <br> <strong><%= @event.the_day %></strong></p>
+        <% if @invitee.ceremonial_response == true || @invitee.reception_response == true %>
+          <p style="color: rgba(0,0,0,0.84)">Thank you for joining</p>
+          <p style="line-height: 1.4; color: rgba(0,0,0,0.84)">Don't forget our wedding was held on <br> <strong><%= @event.the_day %></strong></p>
+        <% else %>
+          <p style="color: rgba(0,0,0,0.84)">Thank you for your participation</p>
+        <% end %>
       </div>
     </div>
 
-    <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
-      <div style="padding: 30px 30px 20px 30px;">
-        <div>
-          <p style="margin: 0; font-size: 16px; margin-bottom: 30px;">You will attend our wedding at:</p>
-        </div>
-
-        <div style="width: 48%; display: inline-block;">
-          <div style="padding-right: 10px;">
-            <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Holy Matrimony</strong></h6>
-            <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.ceremonial_start.in_time_zone('Bangkok').strftime('%H:%M') %>WIB</h5>
-            <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.ceremonial_location_name%></p>
-            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.ceremonial_location_address %></p>
-          </div>
-        </div>
-
-        <div style="width: 48%; display: inline-block;">
+    <% if @invitee.ceremonial_response == true || @invitee.reception_response == true %>
+      <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
+        <div style="padding: 30px 30px 20px 30px;">
           <div>
-            <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Wedding Reception</strong></h6>
-            <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.reception_start.in_time_zone('Bangkok').strftime('%H:%M') %> WIB</h5>
-            <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.reception_location_name %></p>
-            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.reception_location_address %></p>
+            <p style="margin: 0; font-size: 16px; margin-bottom: 30px;">You will attend our wedding at:</p>
+          </div>
+
+          <% if @invitee.ceremonial_response == true %>
+            <div style="width: 48%; display: inline-block;">
+              <div style="padding-right: 10px;">
+                <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Holy Matrimony</strong></h6>
+                <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.ceremonial_start.in_time_zone('Bangkok').strftime('%H:%M') %>WIB</h5>
+                <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.ceremonial_location_name%></p>
+                <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.ceremonial_location_address %></p>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @invitee.reception_response == true %>
+            <div style="width: 48%; display: inline-block;">
+              <div>
+                <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Wedding Reception</strong></h6>
+                <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.reception_start.in_time_zone('Bangkok').strftime('%H:%M') %> WIB</h5>
+                <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.reception_location_name %></p>
+                <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.reception_location_address %></p>
+              </div>
+            </div>
+          <% end %>
+
+          <p style="margin: 0; font-size: 16px; margin-bottom: 15px;">I will come for <%= @invitee.number_response %> person(s)</p>
+
+          <% if @invitee.reception_response == true %>
+            <div>
+              <%= email_image_tag(@qrcode_png) %>
+            </div>
+          <% end %>
+
+          <div>
+            <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>" target="_blank"><%= @event.name.downcase.delete(' ') %></a></p>
           </div>
         </div>
-
-        <p style="margin: 0; font-size: 16px; margin-bottom: 15px;">I will come for <%= @invitee.number_response %> person(s)</p>
-
-        <div>
-          <%= email_image_tag(@qrcode_png) %>
-        </div>
-
-        <div>
-          <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>" target="_blank"><%= @event.name.downcase.delete(' ') %></a></p>
-        </div>
       </div>
-    </div>
+    <% end %>
 
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div>

@@ -323,11 +323,14 @@ class InviteesController < ApplicationController
 
   def update_response
     @invitee = Invitee.find(params[:id])
+    attrs_before = @invitee.attributes
     @event = @invitee.event
 
     # authorize! :update_response
     if @invitee.update(invitee_params)
-      InviteeMailer.invitation_response(@event, @invitee).deliver_now
+      unless @invitee.attributes.eql?(attrs_before)
+        InviteeMailer.invitation_response(@event, @invitee).deliver_now
+      end
       @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
       @qrcode_png = @qrcode.to_img.resize(150, 150)
       render :invitation_response
