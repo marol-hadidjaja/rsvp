@@ -16,7 +16,8 @@ class InviteeMailer < ApplicationMailer
     @event = event
     @invitee = invitee
     @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
-    @qrcode_png = @qrcode.to_img.resize(90, 90)
+    @qrcode_png = @qrcode.to_img.resize(200, 200).save("public/images/qrcode-#{ @invitee.id }.png")
+    # to_data_url
     mail(to: @invitee.email, subject: @event.name)
   end
 end

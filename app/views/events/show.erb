@@ -1,15 +1,18 @@
 <% if current_user.has_role?("admin") %>
   <%= render partial: "admin_show" %>
 <% elsif current_user.has_role?("invitee") %>
-  <div class="content">
-    <% unless @event.nil? %>
-      <ul class="cb-slideshow">
-        <% @event.images.each do |image| %>
-          <li><span style="background-image: url(<%= image.file.url %>)"><%= File.basename(image.file_file_name, ".*") %></span><div></div></li>
-        <% end %>
-      </ul>
+  <section class="distractful text-center">
+    <% if @event.present? %>
+      <% @event.images.each do |image| %>
+        <div class="distractful-item">
+          <%= image_tag image.file.url %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="distractful-item">
+      </div>
     <% end %>
-  </div><!-- .content -->
+  </section>
 
   <%= render partial: "invitee_show" %>
 <% end%>

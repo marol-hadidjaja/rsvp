@@ -6,6 +6,7 @@ require 'googleauth'
 #require 'googleauth/web_user_authorizer'
 #require 'googleauth/stores/redis_token_store'
 
+include ApplicationHelper
 class InviteesController < ApplicationController
   before_action :set_invitee, only: [:show, :edit, :update, :destroy]
   # before_filter :authenticate_user!, :except => [:update_arrival_form, :update_arrival]
@@ -182,7 +183,6 @@ class InviteesController < ApplicationController
       client.authorization = auth_client
 
       g_event = client.get_event('primary', @event.event_id)
-      # attendees = [ { email: 'a@b.com' } ]
       if session[:delete_attendees]
         attendees = session[:delete_attendees]
         session.delete(:delete_attendees)
@@ -328,7 +328,10 @@ class InviteesController < ApplicationController
     # authorize! :update_response
     if @invitee.update(invitee_params)
       InviteeMailer.invitation_response(@event, @invitee).deliver_now
-      redirect_to event_path(@invitee.event)
+      @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
+      @qrcode_png = @qrcode.to_img.resize(150, 150)
+      render :invitation_response
+      # redirect_to event_path(@invitee.event)
     else
       respond_to do |format|
         format.html { render :show }

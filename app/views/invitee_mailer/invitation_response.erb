@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= @event.name %></title>
   </head>
-  <body style="background-color: #eee; margin: 20px;">
+
+  <body style="background-color: #eee; padding: 20px;">
     <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
       <div style="padding: 30px 30px 20px 30px;">
         <h6 style="margin: 0; font-size: 18px;">Hi, <%= @invitee.name %></h6>
@@ -42,8 +43,7 @@
         <p style="margin: 0; font-size: 16px; margin-bottom: 15px;">I will come for <%= @invitee.number_response %> person(s)</p>
 
         <div>
-          <!--<img src="<%#= @qrcode_png.to_data_url %>" style="max-width: 100px">-->
-          <%= email_image_tag(@qrcode_png.to_data_url, style: "max-width: 100px") %>
+          <%= email_image_tag(@qrcode_png) %>
         </div>
 
         <div>

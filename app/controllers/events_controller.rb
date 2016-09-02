@@ -15,6 +15,7 @@ require 'rqrcode'
 require 'rqrcode_png'
 #require 'multi_json'
 
+include ApplicationHelper
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
 APPLICATION_NAME = 'Google Calendar API Ruby Quickstart'
 CLIENT_SECRETS_PATH = File.join(Dir.pwd, 'client_id-quickstart.json')
@@ -243,10 +244,10 @@ class EventsController < ApplicationController
       0.upto(@invitee.number) do |number|
         @numbers << number
       end
-      @qrcode = RQRCode::QRCode.new("http://192.168.1.4:3000#{ update_arrival_invitee_path(@invitee) }")
+      @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
       # @qrcode_png = @qrcode.to_img
       # @qrcode_png.resize(90, 90).save("public/qrcode_#{ @invitee.id }.png")
-      @qrcode_png = @qrcode.to_img.resize(90, 90)
+      @qrcode_png = @qrcode.to_img.resize(150, 150)
     elsif current_user.has_role?("admin")
       @ceremonial_response = Invitee.ceremonial_ok
       @reception_response = Invitee.reception_ok
