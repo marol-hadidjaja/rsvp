@@ -31,11 +31,6 @@ class InviteesController < ApplicationController
       if params[:name].present?
         @invitees = Event.find(params[:event_id]).invitees.where("name LIKE '%#{ params[:name] }%'")
         render json: { html: render_to_string('_table', layout: false) }
-=begin
-        respond_to do |format|
-          format.json{ { html: render_to_string("_table", layout: false) }.to_json }
-        end
-=end
       else
         @invitees = Event.find(params[:event_id]).invitees
       end
@@ -110,14 +105,6 @@ class InviteesController < ApplicationController
         InviteeMailer.invitation_email(@event, @invitee).deliver
         redirect_to @invitee
       end
-
-=begin
-      respond_to do |format|
-        #format.html { render :show, status: :created, location: @invitee}
-        format.html { redirect_to @invitee, notice: 'Invitee was successfully created.' }
-        format.json { render :show, status: :created, location: @invitee }
-      end
-=end
     else
       relations = Invitee.all.map(&:relation).uniq
       @relations_h = []
@@ -377,6 +364,7 @@ class InviteesController < ApplicationController
     end
   end
 
+=begin
   def calendars
     client = Signet::OAuth2::Client.new(access_token: session[:access_token])
 
@@ -386,6 +374,7 @@ class InviteesController < ApplicationController
 
     @calendar_list = service.list_calendar_lists
   end
+=end
 
   def update_rsvp_redirect
     client = Signet::OAuth2::Client.new({
@@ -397,22 +386,6 @@ class InviteesController < ApplicationController
     })
 
     redirect_to client.authorization_uri.to_s
-  end
-
-  def oauth2callback
-    client = Signet::OAuth2::Client.new({
-      client_id: "598369950071-lo782826gopcb8bmm91no7d0d75poqu2.apps.googleusercontent.com",
-      client_secret: "uKZQkjK7mDIFdgK0r0q4AMxv",
-      token_credential_uri: 'https://accounts.google.com/o/oauth2/token',
-      redirect_uri: url_for(:action => :callback),
-      code: params[:code]
-    })
-
-    response = client.fetch_access_token!
-
-    session[:access_token] = response['access_token']
-
-    redirect_to url_for(:action => :calendars)
   end
 
   # suggest all relations that have been created
@@ -461,7 +434,7 @@ class InviteesController < ApplicationController
         # attendees = [ { email: 'a@b.com' } ]
         g_event.attendees = attendees
 
-        result = client.update_event('primary', g_event.id, g_event, send_notifications: true)
+        result = client.update_event('primary', g_event.id, g_event)
       end
     end
 

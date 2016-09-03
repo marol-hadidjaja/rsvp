@@ -27,7 +27,7 @@ Rails.application.routes.draw do
 
   get 'oauth2callback' => 'events#oauth2callback'
   get 'authorize' => 'events#authorize'
-  get 'googlecalendar' => 'invitees#calendars'
+  # get 'googlecalendar' => 'invitees#calendars'
 
   root 'events#index'
   # The priority is based upon order of creation: first created -> highest priority.

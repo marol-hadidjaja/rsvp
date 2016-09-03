@@ -24,7 +24,8 @@
       <div class="row content" style="padding: 0 0 2% 0px;">
     <% end%>
       <div class="large-12 columns">
-        <% unless current_user.has_role?("invitee") %>
+        <%# unless current_user.has_role?("invitee") %>
+        <% unless params[:controller] == "events" && (params[:action] == "show" || params[:action] == "update_response") %>
           <div class="row nav" style=" margin-top: 30px; margin-bottom: 10px;">
             <div class="large-6 columns left">
               <% if current_user.has_role?('admin') %>

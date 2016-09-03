@@ -36,17 +36,6 @@ class EventsController < ApplicationController
 
   def index
 =begin
-  <Event id: 1, user_id: 1, name: "gh", event_id: "3edbr26rpgoioaq3r5g4tbulk4", description: "gh",
-    location: "gh", start: "2016-10-08 10:00:00", end: "2016-10-08 12:00:00", created_at: "2016-08-04 15:20:25",
-    updated_at: "2016-08-04 15:20:26">
-  <Event id: 2, user_id: 1, name: "married", event_id: "0p8r60aoe3f9huq9q78nch0dss", description: "married",
-    location: "n", start: "2016-10-08 10:00:00", end: "2016-10-08 12:00:00", created_at: "2016-08-08 16:43:40",
-    updated_at: "2016-08-08 16:43:41">]
-=end
-    #unless session.has_key?(:credentials)
-    #  redirect_to('/oauth2callback')
-    #else
-=begin
       client_opts = JSON.parse(session[:credentials])
       auth_client = Signet::OAuth2::Client.new(client_opts)
       logger.debug "--------------------------auth_client: #{auth_client.inspect}"
@@ -62,50 +51,38 @@ class EventsController < ApplicationController
         :timeMin => Time.now.iso8601 })
       "<pre>#{JSON.pretty_generate(results.to_h)}</pre>"
 =end
-
-=begin
-      # WORKED
-      client_opts = JSON.parse(session[:credentials])
-      auth_client = Signet::OAuth2::Client.new(client_opts)
-      client = Google::Apis::CalendarV3::CalendarService.new
-      client.authorization = auth_client
-      event = Google::Apis::CalendarV3::Event.new({
-        summary: 'Google I/O 2015',
-        location: '800 Howard St., San Francisco, CA 94103',
-        description: 'A chance to hear more about Google\'s developer products.',
-        start: {
-          date_time: '2016-10-08T16:00:00+07:00',
-          time_zone: 'Asia/Bangkok',
-        },
-        end: {
-          date_time: '2016-10-08T19:00:00+07:00',
-          time_zone: 'Asia/Bangkok',
-        },
-        attendees: [
-          { email: 'lpage@example.com' },
-          { email: 'sbrin@example.com' },
-        ]
-      })
-      logger.debug "----------------------------------------auth_client: #{ auth_client.inspect }"
-      logger.debug "----------------------------------------client: #{ client.inspect }"
-      result = client.insert_event('primary', event, send_notifications: true)
-      puts "Events created: #{result.inspect}"
-=end
-    #end
-    if current_user.has_role?("invitee")
-      redirect_to event_path(current_user.events.first)
-      # @events = current_user.events.order("created_at DESC")
-    elsif current_user.has_role?("receptionist")
-      redirect_to event_invitees_path(current_user.events.first)
-    elsif current_user.has_role?("admin")
-      if current_user.events.empty?
-        redirect_to new_event_path
-      else
-        @events = current_user.events.order("created_at DESC")
-      end
+    if params[:event_id].present?
+      # user wanna look events#show
+      redirect_to event_path(params[:event_id])
     else
-      # new user with no roles
-      redirect_to new_event_path
+=begin
+      if current_user.has_role?("invitee")
+        redirect_to event_path(current_user.events.first)
+      elsif current_user.has_role?("receptionist")
+        redirect_to event_invitees_path(current_user.events.first)
+      elsif current_user.has_role?("admin")
+        if current_user.events.empty?
+          redirect_to new_event_path
+        else
+          @events = current_user.events.order("created_at DESC")
+        end
+      else
+        # new user with no roles
+        redirect_to new_event_path
+      end
+=end
+      if current_user.has_role?("receptionist")
+        redirect_to event_invitees_path(current_user.events.first)
+      elsif current_user.has_role?("admin")
+        if current_user.events.empty?
+          redirect_to new_event_path
+        else
+          @events = current_user.events.order("created_at DESC")
+        end
+      else
+        # new user with no roles
+        redirect_to new_event_path
+      end
     end
   end
 
@@ -125,48 +102,13 @@ class EventsController < ApplicationController
       end
 
       respond_to do |format|
-        # logger.debug "----------------------------#{session[:credentials].inspect}"
         if @event.save
-          #client = Google::APIClient.new(:application_name => APPLICATION_NAME)
-=begin
-          # RIGHT
-          client_opts = JSON.parse(session[:credentials])
-          auth_client = Signet::OAuth2::Client.new(client_opts)
-          client = Google::Apis::CalendarV3::CalendarService.new
-          client.authorization = auth_client
-=end
-          #client.authorization = authorize
-          #calendar_api = client.discovered_api('calendar', 'v3')
-=begin
-          # RIGHT
-          @new_event = Google::Apis::CalendarV3::Event.new({
-            summary: @event.name,
-            description: @event.description,
-            location: @event.location,
-            start: { date_time: @event.start.to_datetime,
-                     time_zone: 'Asia/Bangkok' },
-                     end: { date_time: @event.end.to_datetime,
-                   time_zone: 'Asia/Bangkok' },
-            guestsCanInviteOthers: false,
-            guestsCanSeeOtherGuests: false
-          })
-
-          logger.debug "------------------------------------#{@new_event.inspect}"
-=end
 =begin
           if @g_event = client.execute(:api_method => calendar_api.events.insert,
                                         :parameters => { 'calendarId' => 'primary', 'sendNotifications' => true },
                                         :body => JSON.dump(@new_event),
                                         :headers => { 'Content-Type' => 'application/json' })
             logger.debug "------------------------#{ @g_event.body }"
-            format.html { redirect_to invitees_path }
-          end
-=end
-=begin
-          # RIGHT
-          if result = client.insert_event('primary', @new_event, send_notifications: true)
-            logger.debug "--------------------------#{result.inspect}"
-            session.delete(:event)
             format.html { redirect_to invitees_path }
           end
 =end
@@ -258,8 +200,6 @@ class EventsController < ApplicationController
         @numbers << number
       end
       @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
-      # @qrcode_png = @qrcode.to_img
-      # @qrcode_png.resize(90, 90).save("public/qrcode_#{ @invitee.id }.png")
       @qrcode_png = @qrcode.to_img.resize(150, 150)
     elsif current_user.has_role?("admin")
       @ceremonial_response = Invitee.ceremonial_ok
@@ -296,7 +236,6 @@ class EventsController < ApplicationController
 
   def authorize
     # NOTE: Assumes the user is already authenticated to the app
-    #user_id = request.session['user_id']
     logger.debug "------------------------request: #{request.inspect}"
     logger.debug "------------------------request.session: #{request.session.inspect}"
     credentials = authorizer.get_credentials("default", request)
