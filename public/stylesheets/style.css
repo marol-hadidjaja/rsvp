@@ -118,7 +118,6 @@ body.distractful-body{overflow-x:hidden }
 .distractful-pager.active{background-color: rgba(255,255,255,.3);}
 
 @media screen and (max-width: 600px){
-  .intro{ margin-bottom: 5px; }
   .input input[type="text"] { height: 2rem; }
   .input form{ padding: 4% 3% }
 
@@ -130,18 +129,17 @@ body.distractful-body{overflow-x:hidden }
 
 @media screen and (max-width: 500px){
   .input{
-    width: inherit;
-    margin-right: 50px;
-    left: 50px;
+    left: 0;
+    width: 100%;
+    top: 0;
+    height: 100%;
+    padding: 30px;
+    overflow: auto;
+    background-color: rgba(255,255,255,0.7);
   }
 }
 
 @media screen and (max-width: 400px){
-  .input{
-    margin-left: 30px;
-    margin-right: 30px;
-    left: 0;
-  }
 }
 
 .content{ padding: 0 0 2% 0; }

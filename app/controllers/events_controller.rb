@@ -205,12 +205,10 @@ class EventsController < ApplicationController
 
       if params[:delete_images].present?
         list = JSON.parse(params[:delete_images])
-        binding.pry
         unless list.empty?
           list.each do |image_id|
             @event.images.delete(image_id)
           end
-        binding.pry
         end
       end
       respond_to do |format|
