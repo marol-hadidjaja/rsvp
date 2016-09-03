@@ -11,23 +11,84 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151116154641) do
+ActiveRecord::Schema.define(version: 20160820002139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "events", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "name"
+    t.string   "event_id"
+    t.text     "description"
+    t.text     "ceremonial_location_address"
+    t.datetime "ceremonial_start"
+    t.datetime "ceremonial_end"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "ceremonial_location_name"
+    t.datetime "reception_start"
+    t.datetime "reception_end"
+    t.string   "reception_location_name"
+    t.text     "reception_location_address"
+    t.string   "invitation_file_name"
+    t.string   "invitation_content_type"
+    t.integer  "invitation_file_size"
+    t.datetime "invitation_updated_at"
+    t.string   "global_password"
+  end
+
+  add_index "events", ["user_id"], name: "index_events_on_user_id", using: :btree
+
+  create_table "events_images", force: :cascade do |t|
+    t.integer  "event_id"
+    t.integer  "image_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "events_images", ["image_id", "event_id"], name: "index_events_images_on_image_id_and_event_id", unique: true, using: :btree
+
+  create_table "images", force: :cascade do |t|
+    t.string   "file_file_name"
+    t.string   "file_content_type"
+    t.integer  "file_file_size"
+    t.datetime "file_updated_at"
+    t.integer  "user_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "images", ["user_id"], name: "index_images_on_user_id", using: :btree
+
   create_table "invitees", force: :cascade do |t|
+    t.integer  "event_id"
     t.string   "name"
     t.string   "relation"
     t.integer  "number"
     t.string   "email"
     t.text     "address"
     t.string   "phone"
-    t.boolean  "response"
+    t.boolean  "ceremonial_response"
     t.boolean  "arrival"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.boolean  "reception_response"
+    t.integer  "number_response"
+    t.integer  "number_arrival"
   end
+
+  add_index "invitees", ["event_id"], name: "index_invitees_on_event_id", using: :btree
+
+  create_table "legacy_session_table", force: :cascade do |t|
+    t.string   "session_id", null: false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "legacy_session_table", ["session_id"], name: "index_legacy_session_table_on_session_id", unique: true, using: :btree
+  add_index "legacy_session_table", ["updated_at"], name: "index_legacy_session_table_on_updated_at", using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
@@ -38,16 +99,32 @@ ActiveRecord::Schema.define(version: 20151116154641) do
   create_table "user_roles", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "role_id"
+    t.integer  "event_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_index "user_roles", ["event_id"], name: "index_user_roles_on_event_id", using: :btree
+  add_index "user_roles", ["role_id"], name: "index_user_roles_on_role_id", using: :btree
+  add_index "user_roles", ["user_id"], name: "index_user_roles_on_user_id", using: :btree
+
   create_table "users", force: :cascade do |t|
+    t.string   "email",                  default: "", null: false
+    t.string   "encrypted_password",     default: "", null: false
     t.string   "username"
-    t.string   "password"
-    t.string   "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.inet     "current_sign_in_ip"
+    t.inet     "last_sign_in_ip"
   end
+
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
 end

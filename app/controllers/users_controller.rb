@@ -4,7 +4,14 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    # still just implemented for showing receptionist for current user event
+    if params[:role].present?
+      @event = current_user.events.first
+      @users = User.joins(:user_roles).where("user_roles.role_id": Role.find_by_name('receptionist'),
+                                             "user_roles.event_id": @event)
+    else
+      @users = User.all
+    end
   end
 
   # GET /users/1

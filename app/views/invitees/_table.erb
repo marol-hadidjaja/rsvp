@@ -1,0 +1,116 @@
+<% unless @invitees.empty? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Relation</th>
+        <th>Guest(s)</th>
+        <th>Email</th>
+        <th>Ceremonial Response</th>
+        <th>Reception Response</th>
+        <% if current_user.has_role?("admin") %>
+          <th colspan="3"></th>
+        <% end %>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @invitees.each do |invitee| %>
+        <tr>
+          <td>
+            <% if current_user.has_role?("admin") %>
+              <%= link_to invitee.name, "#", "data-reveal-id": "invitee-#{ invitee.id }-modal" %>
+            <% else %>
+              <%= invitee.name %>
+            <% end %>
+          </td>
+          <td><%= invitee.relation %></td>
+          <td><%= invitee.number %></td>
+          <td><%= invitee.email %></td>
+          <td>
+            <% unless invitee.ceremonial_response.nil? %>
+              <% if invitee.ceremonial_response === true %>
+                <i class="fa fa-check" aria-hidden="true"></i>
+              <% else %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="fa fa-question" aria-hidden="true"></i>
+            <% end %>
+          </td>
+          <td>
+            <% unless invitee.reception_response.nil? %>
+              <% if invitee.ceremonial_response === true %>
+                <i class="fa fa-check" aria-hidden="true"></i>
+              <% else %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="fa fa-question" aria-hidden="true"></i>
+            <% end %>
+          </td>
+          <% if current_user.has_role?("admin") %>
+            <td>
+              <% if invitee.number_response.present? %>
+                invitee already response
+              <% else %>
+                <%= link_to 'Edit', edit_invitee_path(invitee) %>
+              <% end %>
+            </td>
+            <td><%= link_to 'Resend', invitees_resend_invitation_invitee_path(invitee) %></td>
+          <% elsif current_user.has_role?("receptionist") %>
+            <td><%= link_to 'Update Arrival', '#', class: 'update-arrival', "data-invitee-id": invitee.id %></td>
+          <% end %>
+        </tr>
+
+        <% if current_user.has_role?("admin") %>
+          <div id="invitee-<%= invitee.id %>-modal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+                <h2 id="modalTitle"><%= invitee.name %></h2>
+                <p>
+                  <strong>Relation:</strong>
+                  <%= invitee.relation %>
+                </p>
+
+                <p>
+                  <strong>Guest(s):</strong>
+                  <%= invitee.number %>
+                </p>
+
+                <p>
+                  <strong>Email:</strong>
+                  <%= invitee.email %>
+                </p>
+
+                <p>
+                  <strong>Address:</strong>
+                  <%= invitee.address %>
+                </p>
+
+                <p>
+                  <strong>Phone:</strong>
+                  <%= invitee.phone %>
+                </p>
+
+                <p>
+                  <strong>Ceremonial Response:</strong>
+                  <%= invitee.ceremonial_response %>
+                </p>
+
+                <p>
+                  <strong>Reception Response:</strong>
+                  <%= invitee.reception_response %>
+                </p>
+
+                <p>
+                  <strong>Arrival:</strong>
+                  <%= invitee.arrival %>
+                </p>
+                <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+              </div><!-- .reveal-modal -->
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  No invitee(s) found
+<% end %>

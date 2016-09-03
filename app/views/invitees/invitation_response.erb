@@ -1,0 +1,60 @@
+<section class="distractful text-center">
+  <% if @event.present? %>
+    <% @event.images.each do |image| %>
+      <div class="distractful-item">
+        <%= image_tag image.file.url %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="distractful-item">
+    </div>
+  <% end %>
+</section>
+
+<div class="input">
+  <% # already confirmed %>
+  <div class="input">
+    <form>
+      <div class="row">
+        <div class="medium-12 columns">
+          <h5>Thank you for joining</h5>
+          <h6>Don't forget our wedding was held on <strong><%= @event.the_day %></strong></h6>
+        </div>
+
+        <div class="medium-12 columns">
+          <div class="finishForm">
+            <% if @invitee.reception_response == true || @invitee.ceremonial_response == true %>
+              <h6>You will attend our wedding at:</h6>
+              <% if @invitee.ceremonial_response == true %>
+                <div class="desc">
+                  <h6><strong>Holy Matrimony</strong></h6>
+                  <p class="first"><%= @event.ceremonial_location_name %></p>
+                  <p><%= @event.ceremonial_location_address %></p>
+                </div>
+              <% end %>
+
+              <% if @invitee.reception_response == true %>
+                <div class="desc">
+                  <h6><strong>Wedding Reception</strong></h6>
+                  <p class="first"><%= @event.reception_location_name %></p>
+                  <p><%= @event.reception_location_address %></p>
+                </div>
+              <% end %>
+
+              <h6>I will come for <%= @invitee.number_response %> person(s)</h6>
+
+              <% if @invitee.number_response > 0 && @invitee.reception_response == true %>
+                <%= image_tag @qrcode_png.to_data_url %>
+              <% end %>
+            <% else %>
+              <% # condition: reception_response == true && ceremonial_response == true %>
+              <h6>Thank you for your participation</h6>
+            <% end %>
+          </div><!-- finishForm -->
+
+          <%= link_to "Logout", destroy_user_session_path, method: :delete, class: "button logout" %>
+        </div><!-- .medium-12.columns -->
+      </div><!-- .row -->
+    </form>
+  </div><!-- .input -->
+</div>

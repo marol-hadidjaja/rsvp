@@ -1,8 +1,26 @@
-<% logger.debug "----------------#{@errors.inspect}" %>
-<% if @errors && !@errors.length.empty? %>
-  <%= @errors.inspect %>
+<% if @result_import.present? %>
+  <% unless @result_import[:success].empty? %>
+    <%= @result_import[:success].length %> invitee(s) imported<br/>
+  <% end %>
+
+  <% @result_import[:errors].each do |r| %>
+    <% if r.key?(:email) %>
+      <%= r[:email] %>:
+    <% else %>
+      <%= r['name'] %>;
+    <% end %>
+    <%= r[:errors].map{ |k, v| "#{ k } #{ v.join(', ') }" }.join('; ').html_safe %>
+    <br/>
+  <% end %>
 <% end %>
-<%= form_tag('/invitees_import', :multipart => true) do %>
+
+<% if @error.present? %>
+  <%= @error %>
+<% end %>
+
+<%= form_tag(event_invitees_import_path(@event), :multipart => true) do %>
+  <%= check_box_tag :email_present, 'true' %>
+  <%= label :invitee, :email, "Email present?" %>
   <%= file_field_tag(:invitees) %>
   <%= submit_tag('Import') %>
 <% end %>

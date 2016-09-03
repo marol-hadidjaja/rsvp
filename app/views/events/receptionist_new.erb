@@ -1,0 +1,29 @@
+<h2 style="margin-bottom: 20px; border-bottom: 1px solid #ddd; margin-top: 30px;">New Receptionist</h2>
+
+<%= form_for(@user, url: event_receptionist_create_path) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :email %>
+    <%= f.text_field :email, autofocus: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit class: "button", style: "border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
+  </div>
+<% end %>

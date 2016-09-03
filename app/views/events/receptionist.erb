@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing receptionist <%= @event.name %></h1>
+
+<%= link_to 'New Receptionist', event_receptionist_new_path %><br/>
+<% unless @users.empty? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Created at</th>
+        <th>Updated at</th>
+        <th colspan="3"></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.email %></td>
+          <td><%= user.created_at %></td>
+          <td><%= user.updated_at %></td>
+          <td><%#= link_to 'Edit', edit_user_path(user) %></td>
+          <td><%#= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  No receptionist yet.
+<% end %>

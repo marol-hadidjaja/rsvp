@@ -1,47 +1,85 @@
+<% unless current_user.has_role?("invitee") %>
+  <div class="row" style="margin-bottom: 20px; margin-top: 30px;">
+    <div class="large-12 columns">
+      <div style="border-bottom: 1px solid #ddd;">
+        <h2 style="display: inline;"><%= @event.name %></h2>
+        <% if current_user.has_role?("admin") %>
+          <%= link_to 'Edit Event', edit_event_path(@event), style: "display: inline;" %>
+          <p style="float: right; display: inline; margin-top: 20px;">Total Guest: <strong><%= @event.total_invitees %> People</strong></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <p id="notice"><%= notice %></p>
 
-<h1>Listing Invitees</h1>
-<%= link_to 'Import', invitees_import_path %><br/>
-<%= link_to 'Export', invitees_export_path(:format => :csv) %>
+<% unless current_user.has_role?("invitee") %>
+  <div class="row">
+    <div class="large-6 columns">
+      <%= link_to 'New Invitee', new_event_invitee_path, class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+    </div>
+    <div class="large-6 columns" style="text-align: right;">
+      <%= link_to 'Import', event_invitees_import_path, class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+      <%= link_to 'Export', event_invitees_export_path(:format => :csv), class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
+    </div>
+  </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Relation</th>
-      <th>Number</th>
-      <th>Email</th>
-      <th>Address</th>
-      <th>Phone</th>
-      <th>Response</th>
-      <th>Arrival</th>
-      <th>Created at</th>
-      <th>Updated at</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+  <%= text_field_tag 'search_name', nil, placeholder: "Search by Name" %>
+<% end %>
 
-  <tbody>
-    <% @invitees.each do |invitee| %>
-      <tr>
-        <td><%= invitee.name %></td>
-        <td><%= invitee.relation %></td>
-        <td><%= invitee.number %></td>
-        <td><%= invitee.email %></td>
-        <td><%= invitee.address %></td>
-        <td><%= invitee.phone %></td>
-        <td><%= invitee.response %></td>
-        <td><%= invitee.arrival %></td>
-        <td><%= invitee.created_at.strftime("%d - %B - %Y") %></td>
-        <td><%= invitee.updated_at %></td>
-        <td><%= link_to 'Show', invitee %></td>
-        <td><%= link_to 'Edit', edit_invitee_path(invitee) %></td>
-        <td><%= link_to 'Destroy', invitee, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div id='invitees-list'>
+  <%= render partial: 'table' %>
+</div><!-- #invitees-list -->
 
-<br>
+<script>
+  $(document).ready(function(){
+    $('#search_name').on('input', function(e){
+      var name = $(this).val();
+      $.ajax({
+        url: '<%= event_invitees_path(@event) %>',
+        method: 'GET',
+        dataType: 'json',
+        data: { name: name },
+        success: function(result){
+          $('#invitees-list').html(result.html)
+        }
+      });
+    })
 
-<%= link_to 'New Invitee', new_invitee_path %>
+    $('#invitees-list').on('click', '.update-arrival', function(){
+      var $td = $(this).parents('td'),
+        invitee_id = $td.find('.update-arrival').data('invitee-id');
+      $(this).parents('td').remove('.update_form');
+      $(this).hide();
+      var update_form_html = "";
+      $.ajax({
+        url: '/invitees/'+invitee_id+'/update_arrival',
+        method: 'GET',
+        dataType: 'json',
+        data: { partial: true },
+        success: function(result){
+          $td.prepend(result.html);
+        }
+      })
+    });
+
+    $('#invitees-list').on('click', 'button.confirm_arrival', function(){
+      var $td = $(this).parents('td'),
+        invitee_id = $td.find('.update-arrival').data('invitee-id'),
+        number_arrival = $td.find('.update_form #number_arrival').val();
+
+      $.ajax({
+        url: '/invitees/'+invitee_id+'/update_arrival',
+        method: 'POST',
+        beforeSend: function(xhr) { xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content')) },
+        data: { invitee: { number_arrival: number_arrival } },
+        dataType: 'json',
+        success: function(result){
+          $td.find('.update_arrival').show();
+          $td.find('.update_form').remove();
+        }
+      });
+    })
+  });
+</script>

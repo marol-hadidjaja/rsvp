@@ -1,0 +1,108 @@
+<h2 style="margin-bottom: 20px; border-bottom: 1px solid #ddd; margin-top: 30px;">Create Event</h2>
+
+<%= form_for(@event, html: { multipart: true }) do |f| %>
+  <%= f.hidden_field :user_id, value: current_user.id %>
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name, autofocus: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :global_password %>
+    <%= f.text_field :global_password %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+  </div>
+
+  <div class="row sec">
+    <div class="large-12 columns">
+      <h4 style="margin-top: 15px; margin-bottom: 10px;">Ceremonial</h4>
+      <div class="field">
+        <%= f.label :location_name, for: "event_ceremonial_location_name" %>
+        <%= f.text_field :ceremonial_location_name %>
+      </div>
+
+      <div class="field">
+        <%= f.label :location_address, for: "event_ceremonial_location_address" %>
+        <%= f.text_area :ceremonial_location_address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :start, for: "event_ceremonial_start" %>
+            <%= f.text_field :ceremonial_start %>
+          </div>
+        </div>
+
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :end, for: "event_ceremonial_end" %>
+            <%= f.text_field :ceremonial_end %>
+          </div>
+        </div>
+      </div><!-- row -->
+    </div>
+  </div><!-- row -->
+
+  <div class="row sec">
+    <div class="large-12 columns">
+      <h4 style="margin-top: 15px; margin-bottom: 10px;">Reception</h4>
+      <div class="field">
+        <%= f.label :location_name, for: "event_reception_location_name" %>
+        <%= f.text_area :reception_location_name, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :location_address, for: "event_reception_location_address" %>
+        <%= f.text_area :reception_location_address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :start, for: "event_reception_start" %>
+            <%= f.text_field :reception_start %>
+          </div>
+        </div>
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :end, for: "event_reception_end" %>
+            <%= f.text_field :reception_end %>
+          </div>
+        </div>
+      </div><!-- row -->
+    </div>
+  </div><!-- row -->
+
+  <div class="field">
+    <%= f.label :invitation %>
+    <%= file_field_tag "event[invitation]" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :images %>
+    <%= file_field_tag "event_images[]", multiple: true %>
+  </div>
+
+  <div class="actions btn" style="margin-top: 15px;">
+    <a href="#" class="button">
+      <%= f.submit "Create", style: "background: transparent; border: none; text-transform: uppercase; color: white; font-weight: bold;" %>
+    </a>
+  </div>
+  <div class="actions">
+  </div>
+<% end %>
+
+<script>
+  $(document).ready(function(){
+    var d = new Date()
+    $('#event_ceremonial_start, #event_ceremonial_end, #event_reception_start, #event_reception_end').fdatepicker({
+      format: 'dd-mm-yyyy hh:ii',
+      disableDblClickSelection: true,
+      pickTime: true })
+  })
+</script>

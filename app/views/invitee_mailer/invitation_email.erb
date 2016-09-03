@@ -1,0 +1,59 @@
+<!doctype html>
+<html class="no-js" lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= @event.name %></title>
+  </head>
+  <body style="background-color: #eee; margin: 20px;">
+    <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
+      <div style="padding: 30px 30px 20px 30px;">
+        <h6 style="margin: 0; font-size: 16px;">Hi, <%= @invitee.name %></h6>
+        <p style="color: rgba(0,0,0,0.84)">Thank you for joining us in our wedding day.</p>
+        <p style="line-height: 1.4; color: rgba(0,0,0,0.84)">
+          <a href="<%= "#{ domain }#{ event_path(@event) }" %>">Please click here to get your guest number</a> and to confirm that you are attend in our wedding day.
+        </p>
+        <h6 style="margin-bottom: 5px; margin-top: 20px; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);">Login with:</h6>
+        <p style="line-height: 1.4; margin: 0px;">Email: <strong><%= @invitee.email %></strong></p>
+        <p style="line-height: 1.4; margin-top: 0">Password: <strong><%= @event.global_password %></strong></p>
+      </div>
+    </div>
+
+    <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
+      <div style="padding: 30px 30px 20px 30px;">
+        <div>
+          <p style="margin: 0; font-size: 16px; margin-bottom: 30px;">Our Wedding day held on <br><strong><%= @event.the_day %></strong></p>
+        </div>
+
+        <div style="width: 48%; display: inline-block;">
+          <div style="padding-right: 10px;">
+            <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Holy Matrimony</strong></h6>
+            <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.ceremonial_start.in_time_zone('Bangkok').strftime('%H:%M') %> WIB</h5>
+            <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.ceremonial_location_name %></p>
+            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.ceremonial_location_address %></p>
+          </div>
+        </div>
+
+        <div style="width: 48%; display: inline-block;">
+          <div>
+            <h6 style="margin: 0; font-size: 14px; text-transform: uppercase; color: rgba(0,0,0,0.54);"><strong>Wedding Reception</strong></h6>
+            <h5 style="margin: 0; font-size: 17px; padding-top: 10px; line-height: 1.4; padding-bottom: 5px;">at <%= @event.reception_start.in_time_zone('Bangkok').strftime('%H:%M') %> WIB</h5>
+            <p style="margin: 0; color: rgba(0,0,0,0.84); line-height: 1.4;"><%= @event.reception_location_name %></p>
+            <p style="margin-top: 0px; color: rgba(0,0,0,0.54); line-height: 1.4;"><%= @event.reception_location_address %></p>
+          </div>
+        </div>
+
+        <div>
+          <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>"><%= @event.name.downcase.delete(' ') %></a></p>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width: 650px; margin: 0 auto 20px auto; background: #fff; box-shadow: 1px 1px 5px rgba(0,0,0,0.2); ">
+      <div>
+        <%= email_image_tag(@event.images.first, { style: "max-width: 100%; margin-bottom: -5px;" }) %>
+      </div>
+    </div>
+  </body>
+</html>

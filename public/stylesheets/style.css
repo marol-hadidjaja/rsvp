@@ -1,0 +1,176 @@
+img{ max-width: inherit; }
+
+.intro{ margin-bottom: 20px; }
+
+.input{
+  position: absolute;
+  width: 400px;
+  top: 0;
+  background-color: rgba(255,255,255,0.9);
+  left: 70px;
+  top: 7%;
+  z-index: 1000;
+}
+  .input form{
+    padding: 30px 15px 15px 15px;
+  }
+    .input form h4{ color: rgba(0,0,0,0.87); }
+    .input form h5{ margin-bottom: 0; }
+    .input form p{
+      color: rgba(0,0,0,0.54);
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+    .input form h6{ margin-bottom: 0; }
+    .input form h5 .logout{
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .fieldset{
+      padding: 0.5rem 1.25rem;
+      margin: 0px 0 15px 0;
+      background-color: white;
+    }
+    .fieldset legend{ background: transparent; }
+      .fieldset .desc{ margin-bottom: 15px; }
+      .fieldset div .desc p{
+        font-size: 14px;
+        margin-left: 23px;
+        margin-bottom: 3px;
+      }
+      .fieldset .desc p.first{ color: rgba(0,0,0,0.87); }
+
+.button{ background-color: #86b6a0; }
+.select2-container{ margin-bottom: 1rem !important; }
+
+[type=checkbox], [type=file], [type=radio]{
+  margin-bottom: 0.5rem;
+}
+
+    .combobox select{
+      width: 60px;
+      margin-left: 15px;
+    }
+
+.finishForm{
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  margin-top: 20px;
+  background: white;
+}
+.finishForm > h6{ margin-bottom: 10px !important; }
+  .finishForm .desc{
+    margin-bottom: 0;
+    color: rgba(0,0,0,0.84);
+  }
+  .finishForm .desc p{ font-size: 16px; }
+    .finishForm .desc p.first{
+      color: rgba(0,0,0,0.84);
+      margin-bottom: 2px;
+    }
+
+.logout{ margin-top: 15px; }
+
+.scan img{ max-width: 100px; }
+
+.distractful{overflow:hidden;}
+.distractful:hover{cursor: pointer; cursor: hand;}
+.distractful-item{background-position: center center;background-size: cover;position:absolute;overflow: hidden}
+.distractful-item img{display:none;}
+
+.distractful.isParallax{position:fixed;z-index:0;}
+.distractfulParallaxPlaceholder{background:black;}
+
+body.distractful-body{overflow-x:hidden }
+
+.distractful-controls{position:absolute;width:100px;height:75px;display: block;}
+.distractful-controls:hover{cursor:pointer;}
+.distractful-controls.left:hover {
+  box-shadow: 10px -10px 0 rgba(255, 255, 255, 0.2);
+}
+
+.distractful-pagers{position: absolute;bottom:50px;width:100%;text-align: center;}
+.distractful-pager{
+  position: relative;
+    display: inline-block;
+    margin: 0 8px;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+}
+.distractful-pager a:hover{background-color: rgba(255,255,255,.3);}
+.distractful-pager a{
+  background-color: transparent;
+    box-shadow: 0 0 0 2px #fff;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    text-indent: -9999px;
+    transition: box-shadow .3s ease,background-color .3s ease;
+
+}
+.distractful-pager.active{background-color: rgba(255,255,255,.3);}
+
+@media screen and (max-width: 600px){
+  .input input[type="text"] { height: 2rem; }
+  .input form{ padding: 4% 3% }
+
+  .button{
+    padding: 0.5rem;
+    margin-bottom: 5px;
+  }
+}
+
+@media screen and (max-width: 500px){
+  .input{
+    left: 0;
+    width: 100%;
+    top: 0;
+    height: 100%;
+    padding: 30px;
+    overflow: auto;
+    background-color: rgba(255,255,255,0.7);
+  }
+}
+
+@media screen and (max-width: 400px){
+}
+
+.content{ padding: 0 0 2% 0; }
+
+/* admin */
+.nav{ margin-top: 10px; margin-bottom: 10p; }
+.nav a{ text-transform: uppercase; font-weight: bold; }
+.nav .left a{ margin-right: 20px; }
+.nav .right{ text-align: right; }
+.nav .right a{ margin-left: 20px; }
+
+.field textarea{ padding: 0.5rem; margin: 0 0 1rem 0; }
+
+.field label{
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.45);
+  font-weight: bold;
+}
+
+.row.sec h4 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.actions.btn{ margin-top: 15px; }
+.actions.btn .button{ background: #008cba; }
+.actions.btn input{
+  background: transparent;
+  border: none;
+  text-transform: uppercase;
+  color: white;
+  font-weight: bold;
+}

@@ -1,49 +1,103 @@
-<%= form_for(@invitee) do |f| %>
+<%= form_for [@event, @invitee] do |f| %>
   <% if @invitee.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@invitee.errors.count, "error") %> prohibited this invitee from being saved:</h2>
 
       <ul>
-      <% @invitee.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
+        <% @invitee.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
       </ul>
     </div>
   <% end %>
 
+  <%= f.hidden_field :event_id %>
   <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
+    <%= f.label :name %>
+    <%= f.text_field :name, autofocus: true %>
   </div>
+
   <div class="field">
-    <%= f.label :relation %><br>
-    <%= f.text_field :relation %>
+    <%= f.label :relation %>
+    <%= f.select :relation, @relations_h %>
   </div>
+
   <div class="field">
-    <%= f.label :number %><br>
+    <%= f.label :guest, for: "invitee_number" %>
     <%= f.number_field :number %>
   </div>
+
   <div class="field">
-    <%= f.label :email %><br>
-    <%= f.text_field :email %>
+    <%= f.label :email %>
+    <%= f.email_field :email %>
   </div>
+
   <div class="field">
-    <%= f.label :address %><br>
-    <%= f.text_area :address %>
+    <%= f.label :address %>
+    <%= f.text_area :address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
   </div>
+
   <div class="field">
-    <%= f.label :phone %><br>
+    <%= f.label :phone %>
     <%= f.text_field :phone %>
   </div>
-  <div class="field">
-    <%= f.label :response %><br>
-    <%= f.check_box :response %>
-  </div>
-  <div class="field">
-    <%= f.label :arrival %><br>
-    <%= f.check_box :arrival %>
-  </div>
+
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit class: "button", style: "border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
+
+    <%= link_to 'Back', event_invitees_path(@invitee.event), class: "button", style: "text-transform: uppercase; font-weight: bold; line-height: inherit;" %>
   </div>
 <% end %>
+
+<script>
+  $(document).ready(function(){
+    function formatRepo (repo) {
+      if (repo.loading) return repo.text;
+
+      var markup = "<div class='select2-result-repository clearfix'>" +
+          "<div class='select2-result-repository__meta'>" +
+            "<div class='select2-result-repository__title'>" + repo.text + "</div>"+
+          "</div>"+
+        "</div>";
+
+      return markup;
+    }
+
+    function formatRepoSelection (repo) {
+      return repo.full_name || repo.text;
+    }
+
+    $("#invitee_relation").select2({
+      tags: true,
+      multiple: false,
+      createTag: function (params) {
+        return { id: params.term, text: params.term };
+      },
+      /*
+      ajax: {
+        url: "<%#= invitees_relations_path %>",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            q: params.term, // search term
+            page: params.page
+          };
+        },
+        processResults: function (data, params) {
+          return { results: data.items };
+        },
+        cache: true
+      },
+      */
+      escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+      minimumInputLength: 1,
+      templateResult: formatRepo, // omitted for brevity, see the source of this page
+      templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+      placeholder: "Relation"
+    });
+    //console.log("<%= @invitee.relation %>")
+    //$("#invitee_relation").select2("val", "<%#= @invitee.relation %>");
+    $("#invitee_relation").val("<%= @invitee.relation %>").change();
+  });
+</script>

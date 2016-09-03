@@ -1,0 +1,125 @@
+<h2 style="margin-bottom: 20px; border-bottom: 1px solid #ddd; margin-top: 30px;">Edit Event</h2>
+
+<%= form_for(@event, html: { multipart: true }) do |f| %>
+  <%= f.hidden_field :user_id %>
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name, autofocus: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :global_password %>
+    <%= f.text_field :global_password %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="row sec">
+    <div class="large-12 columns">
+      <h4 style="margin-top: 15px; margin-bottom: 10px;">Ceremonial</h4>
+      <div class="field">
+        <%= f.label :location_name, for: "event_ceremonial_location_name" %>
+        <%= f.text_field :ceremonial_location_name %>
+      </div>
+
+      <div class="field">
+        <%= f.label :location_address, for: "event_ceremonial_location_address" %>
+        <%= f.text_area :ceremonial_location_address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :start, for: "event_ceremonial_start", value: @event.start_wib %>
+            <%= f.text_field :ceremonial_start %>
+          </div>
+        </div>
+
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :end, for: "event_ceremonial_end", value: @event.end_wib %>
+            <%= f.text_field :ceremonial_end %>
+          </div>
+        </div>
+      </div><!-- row -->
+    </div>
+  </div><!-- row -->
+
+  <div class="row sec">
+    <div class="large-12 columns">
+      <h4 style="margin-top: 15px; margin-bottom: 10px;">Reception</h4>
+      <div class="field">
+        <%= f.label :location_name, for: "event_reception_location_name" %>
+        <%= f.text_area :reception_location_name, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :location_address, for: "event_reception_location_address" %>
+        <%= f.text_area :reception_location_address, style: "padding: 0.5rem; margin: 0 0 1rem 0;" %>
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :start, for: "event_reception_start" %>
+            <%= f.text_field :reception_start %>
+          </div>
+        </div>
+        <div class="large-6 columns">
+          <div class="field">
+            <%= f.label :end, for: "event_reception_end" %>
+            <%= f.text_field :reception_end %>
+          </div>
+        </div>
+      </div><!-- row -->
+    </div>
+  </div><!-- row -->
+
+  <div class="field">
+    <%= f.label :invitation %>
+    <%= file_field_tag "event[invitation]" %>
+    <% if @event.invitation.present? %>
+      <img src='<%= @event.invitation(:thumb) %>'>
+    <% end %>
+  </div>
+
+  <div class="field" style="margin-top: 20px; margin-bottom: 20px;">
+    <%= hidden_field_tag 'delete_images', '[]' %>
+    <%= f.label :images %>
+    <%= file_field_tag "event_images[]", multiple: true %>
+    <% unless @event.images.empty? %>
+      <% @event.images.each do |image| %>
+        <%= image_tag image.file(:thumb), 'data-imageid': image.id %>
+        <a class='delete-image' data-imageid="<%= image.id %>"><i class="fa fa-times-circle" aria-hidden="true"></i></a>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="actions" style="margin-bottom: 15px;">
+    <%= f.submit "Update", class: "button", style: "border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;" %>
+  </div>
+<% end %>
+
+<script>
+  $(document).ready(function(){
+    var d = new Date()
+    $('#event_ceremonial_start, #event_ceremonial_end, #event_reception_start, #event_reception_end').fdatepicker({
+      format: 'dd-mm-yyyy hh:ii',
+      disableDblClickSelection: true,
+      pickTime: true })
+
+    $('.delete-image').click(function(){
+      var image_id = $(this).data('imageid');
+      var input_value = $('#delete_images').val(),
+        set_input_value = JSON.parse(input_value);
+
+      set_input_value.push(image_id);
+      $('img[data-imageid="'+ image_id +'"]').hide();
+      $(this).hide();
+      $('#delete_images').val(JSON.stringify(set_input_value));
+    });
+  })
+</script>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP</title>
+
+    <%= stylesheet_link_tag '/stylesheets/foundation.min.css' %>
+    <%= stylesheet_link_tag '/stylesheets/style.css' %>
+    <%= javascript_include_tag '/javascripts/jquery.js', '/javascripts/modernizr.custom.86080.js', '/javascripts/distractful.js' %>
+    <%= csrf_meta_tags %>
+  </head>
+
+  <body>
+    <section class="distractful text-center">
+      <% if @event.present? %>
+        <% @event.images.each do |image| %>
+          <div class="distractful-item">
+            <%= image_tag image.file.url %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="distractful-item">
+          <%= image_tag "default-1.jpg" %>
+        </div>
+        <div class="distractful-item">
+          <%= image_tag "default-2.jpg" %>
+        </div>
+        <div class="distractful-item">
+          <%= image_tag "default-3.jpg" %>
+        </div>
+      <% end %>
+    </section>
+
+    <div class="input">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+        <div class="row">
+          <% if @event.present? %>
+            <div class="medium-12 columns intro">
+              <h5>Join with <br><strong><%= @event.name %></strong></h5>
+              <h6>Held on <strong><%= @event.the_day %></h6>
+            </div>
+          <% end %>
+
+          <div class="medium-12 columns">
+            <%= f.label :email %>
+            <%= f.email_field :email, autofocus: true, placeholder: "Your invited email" %>
+
+            <%= f.label :password %>
+            <%= f.password_field :password, autocomplete: "off", placeholder: "Password" %>
+
+            <%# if devise_mapping.rememberable? -%>
+                <!--<div class="field">-->
+                <%#= f.check_box :remember_me %>
+                <%#= f.label :remember_me %>
+                <!--</div>-->
+            <%# end -%>
+
+            <div class="actions">
+              <%= f.submit "LOGIN", class: "button" %>
+            </div>
+          </div><!-- .medium-12.columns -->
+        </div><!-- .row -->
+      <% end %>
+
+      <%#= render "devise/shared/links" %>
+    </div><!-- .input -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script>
+      var dist = $('section.distractful').distractful({
+          parallax: true,         // true || false
+          parallaxScroll: 215,    // How far the div will move. Default, no movement. lower num = faster
+          controls: true,         // moving || true || false. use false to hide
+          scrollSpeed: 1000,      // int. Default: 1000 (1 second)
+          easing: 'easeInOutQuad',// false || 'easingFunctionName. Use an easing function. Requires Easing library. Set to 'false' to disable, will use jQuery animate
+          auto: true,             // true  || false. default false. Turn on auto-play sliding.
+          autoDirection: 'right', // right || left. default right. Which direction does the auto-play go
+          pauseTime: 5000,        // int. How long until next slide. Default: 5000
+          hoverPause: false,       // true || false. default false. Hover over distractful to stop auto-play
+          showPagers: true,       // true || false. default true. Show the pagers
+          touch:true,             // true || false. default true. Turn on touch events for mobile
+          keyPress: false,        // true || false, default false. Use left and right keyboard keys to control Distractful slides
+          imageLoaded: function(){
+            // console.log('images loaded, ready to slide')
+          },
+          slideComplete: function(){
+            // console.log('slide done sliding')
+          },
+          slideRight: function(){
+            // console.log('slide right done')
+          },
+          slideLeft: function(){
+            // console.log('slide left done')
+          },
+          beforeSlide: function(){
+            // console.log('loaded before sliding')
+          }
+      });
+    </script>
+  </body>
+</html>

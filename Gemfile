@@ -19,6 +19,7 @@ gem 'uglifier', '>= 1.3.0'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
+#gem 'materialize-sass'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -26,6 +27,19 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'pry'
+gem 'devise'
+gem 'cancan'
+gem 'rqrcode'
+gem 'rqrcode_png'
+gem 'paperclip'
+#gem 'google-api-client', '0.7.1', require: 'google/api_client'
+gem 'google-api-client'
+gem 'googleauth'
+gem 'redis'
+gem 'activerecord-session_store'
+gem 'roo', '~> 2.4.0'
+#  google/apis/calendar_v3
+gem 'multi_json'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
