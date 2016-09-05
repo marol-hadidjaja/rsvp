@@ -33,15 +33,15 @@
       <div class="row">
         <div class="large-6 columns">
           <div class="field">
-            <%= f.label :start, for: "event_ceremonial_start", value: @event.start_wib %>
-            <%= f.text_field :ceremonial_start %>
+            <%= f.label :start, for: "event_ceremonial_start" %>
+            <%= f.text_field :ceremonial_start, value: @event.start_wib %>
           </div>
         </div>
 
         <div class="large-6 columns">
           <div class="field">
-            <%= f.label :end, for: "event_ceremonial_end", value: @event.end_wib %>
-            <%= f.text_field :ceremonial_end %>
+            <%= f.label :end, for: "event_ceremonial_end" %>
+            <%= f.text_field :ceremonial_end, value: @event.end_wib %>
           </div>
         </div>
       </div><!-- row -->
@@ -65,13 +65,13 @@
         <div class="large-6 columns">
           <div class="field">
             <%= f.label :start, for: "event_reception_start" %>
-            <%= f.text_field :reception_start %>
+            <%= f.text_field :reception_start, value: @event.reception_start.in_time_zone('Bangkok').strftime('%d-%B-%Y %H:%M') %>
           </div>
         </div>
         <div class="large-6 columns">
           <div class="field">
             <%= f.label :end, for: "event_reception_end" %>
-            <%= f.text_field :reception_end %>
+            <%= f.text_field :reception_end, value: @event.reception_end.in_time_zone('Bangkok').strftime('%d-%B-%Y %H:%M') %>
           </div>
         </div>
       </div><!-- row -->
@@ -107,7 +107,7 @@
   $(document).ready(function(){
     var d = new Date()
     $('#event_ceremonial_start, #event_ceremonial_end, #event_reception_start, #event_reception_end').fdatepicker({
-      format: 'dd-mm-yyyy hh:ii',
+      format: 'dd-MM-yyyy hh:ii',
       disableDblClickSelection: true,
       pickTime: true })
 

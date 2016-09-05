@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
   devise_for :users, :controllers => { :sessions => "sessions" }
+  devise_scope :user do
+    delete "/logout" => "sessions#destroy"
+  end
   # resources :users
   get 'invitees/relations' => 'invitees#relations'
   resources :events, shallow: true do
@@ -11,6 +14,7 @@ Rails.application.routes.draw do
     resources :invitees, shallow: true do
       member do
         post 'update_response'
+        get 'invitation_response'
         get 'update_arrival' => 'invitees#update_arrival_form'
         post 'update_arrival'
         get 'invitees/resend_invitation' => 'invitees#resend_invitation'

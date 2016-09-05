@@ -12,8 +12,10 @@ class ApplicationController < ActionController::Base
         # /events/1
         if params[:event_id].present?
           session[:event_id] = params[:event_id]
-        else
-        session[:event_id] = params[:id]
+        end
+
+        if params[:action] == "show"
+          session[:event_id] = params[:id]
         end
       else
         # /?event_id=1

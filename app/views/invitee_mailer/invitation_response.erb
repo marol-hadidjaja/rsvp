@@ -57,6 +57,8 @@
             </div>
           <% end %>
 
+          <p>If you change your mind, please click this <a href="<%= "#{ domain }#{ event_path(@event) }" %>">link</a>.
+
           <div>
             <p>Download Invitation: <a href="<%= "#{ domain }#{ @event.invitation.url }" %>" target="_blank"><%= @event.name.downcase.delete(' ') %></a></p>
           </div>

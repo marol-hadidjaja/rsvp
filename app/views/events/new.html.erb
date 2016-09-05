@@ -89,9 +89,7 @@
   </div>
 
   <div class="actions btn" style="margin-top: 15px;">
-    <a href="#" class="button">
-      <%= f.submit "Create", style: "background: transparent; border: none; text-transform: uppercase; color: white; font-weight: bold;" %>
-    </a>
+    <%= f.submit "Create", class: "button", style: "border: none; text-transform: uppercase; color: white; font-weight: bold;" %>
   </div>
   <div class="actions">
   </div>
@@ -101,7 +99,7 @@
   $(document).ready(function(){
     var d = new Date()
     $('#event_ceremonial_start, #event_ceremonial_end, #event_reception_start, #event_reception_end').fdatepicker({
-      format: 'dd-mm-yyyy hh:ii',
+      format: 'dd-MM-yyyy hh:ii',
       disableDblClickSelection: true,
       pickTime: true })
   })
