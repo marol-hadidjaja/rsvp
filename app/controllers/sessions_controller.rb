@@ -5,10 +5,10 @@ class SessionsController < Devise::SessionsController
   def destroy
     event_id = session[:event_id]
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    set_flash_message! :notice, :signed_out if signed_out
     session[:event_id] = event_id
     redirect_to new_user_session_path
   end
+
   private
 
   def layout
@@ -23,7 +23,6 @@ class SessionsController < Devise::SessionsController
   before_filter :set_object, only: [:new]
 
   def set_object
-    # binding.pry
     if session[:event_id].present?
       @event = Event.find(session[:event_id])
     end
