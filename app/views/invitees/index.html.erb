@@ -1,9 +1,9 @@
-<% unless current_user.has_role?("invitee") %>
+<% unless current_user.has_role_for_event?("invitee", @event) %>
   <div class="row" style="margin-bottom: 20px; margin-top: 30px;">
     <div class="large-12 columns">
       <div style="border-bottom: 1px solid #ddd;">
         <h2 style="display: inline;"><%= @event.name %></h2>
-        <% if current_user.has_role?("admin") %>
+        <% if current_user.has_role_for_event?("admin", @event) %>
           <%= link_to 'Edit Event', edit_event_path(@event), style: "display: inline;" %>
           <p style="float: right; display: inline; margin-top: 20px;">Total Guest: <strong><%= @event.total_invitees %> People</strong></p>
         <% end %>
@@ -14,7 +14,7 @@
 
 <p id="notice"><%= notice %></p>
 
-<% unless current_user.has_role?("invitee") %>
+<% if current_user.has_role_for_event?("admin", @event) %>
   <div class="row">
     <div class="large-6 columns">
       <%= link_to 'New Invitee', new_event_invitee_path, class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
@@ -24,9 +24,9 @@
       <%= link_to 'Export', event_invitees_export_path(:format => :csv), class: "button", style: "line-height: inherit; text-transform: uppercase; font-weight: bold;" %>
     </div>
   </div>
-
-  <%= text_field_tag 'search_name', nil, placeholder: "Search by Name" %>
 <% end %>
+
+<%= text_field_tag 'search_name', nil, placeholder: "Search by Name" %>
 
 <div id='invitees-list'>
   <%= render partial: 'table' %>
@@ -47,7 +47,7 @@
       });
     })
 
-    $('#invitees-list').on('click', '.update-arrival', function(){
+    $('#invitees-list').on('click', '.update-arrival', function(e){
       var $td = $(this).parents('td'),
         invitee_id = $td.find('.update-arrival').data('invitee-id');
       $(this).parents('td').remove('.update_form');
@@ -60,11 +60,13 @@
         data: { partial: true },
         success: function(result){
           $td.prepend(result.html);
+          $td.find('#number_arrival').focus();
         }
       })
+      e.preventDefault();
     });
 
-    $('#invitees-list').on('click', 'button.confirm_arrival', function(){
+    $('#invitees-list').on('click', 'button.confirm_arrival', function(e){
       var $td = $(this).parents('td'),
         invitee_id = $td.find('.update-arrival').data('invitee-id'),
         number_arrival = $td.find('.update_form #number_arrival').val();
@@ -78,8 +80,10 @@
         success: function(result){
           $td.find('.update_arrival').show();
           $td.find('.update_form').remove();
+          $td.html('arrival updated ('+ number_arrival +')');
         }
       });
+      e.preventDefault();
     })
   });
 </script>
