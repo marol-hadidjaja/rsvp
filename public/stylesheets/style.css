@@ -1,3 +1,7 @@
+body{
+  overflow-x: hidden;
+}
+
 img{ max-width: inherit; }
 
 .intro{ margin-bottom: 20px; }
@@ -6,7 +10,7 @@ img{ max-width: inherit; }
   position: absolute;
   width: 400px;
   top: 0;
-  background-color: rgba(255,255,255,0.9);
+  background-color: rgba(255,255,255,0.85);
   left: 70px;
   top: 7%;
   z-index: 1000;
@@ -30,7 +34,6 @@ img{ max-width: inherit; }
     .fieldset{
       padding: 0.5rem 1.25rem;
       margin: 0px 0 15px 0;
-      background-color: white;
     }
     .fieldset legend{ background: transparent; }
       .fieldset .desc{ margin-bottom: 15px; }
@@ -41,7 +44,7 @@ img{ max-width: inherit; }
       }
       .fieldset .desc p.first{ color: rgba(0,0,0,0.87); }
 
-.button{ background-color: #86b6a0; }
+.button{ padding: 10px 20px; }
 .select2-container{ margin-bottom: 1rem !important; }
 
 [type=checkbox], [type=file], [type=radio]{

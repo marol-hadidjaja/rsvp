@@ -3,7 +3,7 @@
   <%= form_tag update_response_invitee_path(@invitee), id: 'form-update-response' do %>
     <div class="row">
       <div class="medium-12 columns">
-        <h5>Hi, <%= @invitee.name %> <span class="logout"><%= link_to "Logout", destroy_user_session_path, method: :delete %></span></h5>
+        <h5>Hi, <%= @invitee.name %> <span class="logout"><%= link_to "Logout", logout_path, method: :delete %></span></h5>
         <p>Thank you for joining us in our wedding day.</p>
         <h6>Held on <strong><%= @event.the_day %></strong></h6>
         <p>Please to confirm that you are attend in our wedding day.</p>
@@ -41,29 +41,16 @@
   <% end %>
 </div><!-- .input -->
 
-<div id="confirmation-modal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
-  <h2 id="modalTitle">Are you sure?</h2>
-  <p>I'm a cool paragraph that lives inside of an even cooler modal. Wins!</p>
-  <a class="button" id="btn-cancel">Cancel</a>
-  <a class="button" id="btn-ok">OK</a>
-  <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
-
 <script>
   $(document).ready(function(){
     $('#btn-confirm').click(function(e){
       if($('#invitee_ceremonial_response:checked').length == 0 && $('#invitee_reception_response:checked').length == 0){
-        $('#confirmation-modal').foundation('reveal', 'open');
-        $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
-          $('#btn-ok').click(function(){
-              $('#form-update-response').submit();
-              $('[data-reveal]').foundation('reveal','close');
-          });
-
-          $('#btn-cancel').click(function(){
-            $('[data-reveal]').foundation('reveal','close');
-          });
-        });
+        if(confirm("Are you sure?") == true){
+          $('#form-update-response').submit();
+        }
+      }
+      else{
+        $('#form-update-response').submit();
       }
       e.preventDefault();
     });

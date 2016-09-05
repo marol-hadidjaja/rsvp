@@ -13,7 +13,7 @@ module ApplicationHelper
       image_tag attachments[image.file_file_name].url, **options
     else
       attachments[File.basename(image)] = File.read(image)
-      File.delete(image)
+      File.delete(image) if File.exists?(File.path(image))
       image_tag attachments[File.basename(image)].url, **options
     end
   end

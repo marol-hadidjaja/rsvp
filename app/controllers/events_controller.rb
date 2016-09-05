@@ -252,7 +252,7 @@ class EventsController < ApplicationController
     auth_client = client_secrets.to_authorization
     auth_client.update!(
       :scope => SCOPE,
-      :redirect_uri => 'http://localhost:3000/oauth2callback')
+      :redirect_uri => "#{ domain }/oauth2callback")
     if request['code'] == nil
       auth_uri = auth_client.authorization_uri.to_s
       logger.debug "----------------------------auth_uri: #{auth_uri}"

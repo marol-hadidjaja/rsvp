@@ -318,15 +318,21 @@ class InviteesController < ApplicationController
       unless @invitee.attributes.eql?(attrs_before)
         InviteeMailer.invitation_response(@event, @invitee).deliver_now
       end
-      @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
-      @qrcode_png = @qrcode.to_img.resize(150, 150)
-      render :invitation_response
+      redirect_to invitation_response_invitee_path(@invitee)
+      # render :invitation_response
       # redirect_to event_path(@invitee.event)
     else
       respond_to do |format|
         format.html { render :show }
       end
     end
+  end
+
+  def invitation_response
+    @invitee = Invitee.find(params[:id])
+    @event = @invitee.event
+    @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
+    @qrcode_png = @qrcode.to_img.resize(150, 150)
   end
 
   # from QR Code
