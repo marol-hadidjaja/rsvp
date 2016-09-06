@@ -27,7 +27,6 @@ class SessionsController < Devise::SessionsController
   before_filter :set_object, only: [:new]
 
   def set_object
-    # binding.pry
     if session[:event_id].present?
       @event = Event.find(session[:event_id])
     end

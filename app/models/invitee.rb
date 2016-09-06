@@ -4,7 +4,8 @@ class Invitee < ActiveRecord::Base
   # validates_presence_of     :email, :name, :number, :relation
   validates_presence_of     :name, :number, :relation
   validates_length_of       :email, :within => 3..100, allow_blank: true
-  validates_uniqueness_of   :email, :case_sensitive => false, allow_blank: true
+  # validates_uniqueness_of   :email, :case_sensitive => false, allow_blank: true
+  validates_uniqueness_of :email, :scope => :event_id, case_insensitive: false, allow_blank: true
   validates_format_of       :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i, allow_blank: true
   validate :number_bigger_than_zero
   after_destroy :destroy_user

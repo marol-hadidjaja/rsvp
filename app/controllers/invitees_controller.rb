@@ -33,6 +33,7 @@ class InviteesController < ApplicationController
         render json: { html: render_to_string('_table', layout: false) }
       else
         @invitees = Event.find(params[:event_id]).invitees
+        # render json: { html: render_to_string('_table', layout: false) }
       end
     end
   end
@@ -101,8 +102,8 @@ class InviteesController < ApplicationController
         g_event.attendees.push(attendees)
 
         result = client.update_event('primary', g_event.id, g_event)#, send_notifications: true)
-        InviteeMailer.invitation_email(@event, @invitee).deliver
-        redirect_to @invitee
+        InviteeMailer.invitation_email(@event, @invitee).deliver_now
+        redirect_to event_invitees_path(@event)
       end
     else
       relations = Invitee.all.map(&:relation).uniq
@@ -338,7 +339,7 @@ class InviteesController < ApplicationController
   def update_arrival_form
     @invitee = Invitee.find(params[:id])
     @numbers = []
-    0.upto(@invitee.number) do |number|
+    1.upto(@invitee.number) do |number|
       @numbers << number
     end
     # authorize! :update_arrival

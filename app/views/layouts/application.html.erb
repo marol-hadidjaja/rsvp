@@ -24,10 +24,8 @@
       <div class="row content" style="padding: 0 0 2% 0px;">
         <div class="large-12 columns">
     <% end%>
-        <%# unless current_user.has_role?("invitee") %>
-        <%# unless params[:controller] == "events" && (params[:action] == "show" || params[:action] == "invitation_response") %>
+
         <% unless (params[:controller] == "events" && params[:action] == "show") || (params[:controller] == "invitees" && params[:action] == "invitation_response") %>
-        <%# if params[:controller] == "events" && (params[:action] == "show" || params[:action] == "invitation_response") %>
           <div class="row nav" style=" margin-top: 30px; margin-bottom: 10px;">
             <div class="large-6 columns left">
               <% if current_user.has_role?('admin') %>
@@ -37,7 +35,7 @@
 
             <div class="large-6 columns right" style="float: right; text-align: right;">
               <%= current_user.email %>
-              <%= link_to "Logout", destroy_user_session_path, method: :delete, style: "text-transform: uppercase; margin-left: 20px; font-weight: bold;" %><br/>
+              <%= link_to "Logout", logout_path, method: :delete, style: "text-transform: uppercase; margin-left: 20px; font-weight: bold;" %><br/>
             </div>
           </div><!-- nav -->
         <% end %>
@@ -69,19 +67,19 @@
           touch:true,             // true || false. default true. Turn on touch events for mobile
           keyPress: false,        // true || false, default false. Use left and right keyboard keys to control Distractful slides
           imageLoaded: function(){
-            console.log('images loaded, ready to slide')
+            // console.log('images loaded, ready to slide')
           },
           slideComplete: function(){
-            console.log('slide done sliding')
+            // console.log('slide done sliding')
           },
           slideRight: function(){
-            console.log('slide right done')
+            // console.log('slide right done')
           },
           slideLeft: function(){
-            console.log('slide left done')
+            // console.log('slide left done')
           },
           beforeSlide: function(){
-            console.log('loaded before sliding')
+            // console.log('loaded before sliding')
           }
       });
     </script>
