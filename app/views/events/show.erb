@@ -1,6 +1,6 @@
-<% if current_user.has_role?("admin") %>
+<% if current_user.has_role_for_event?("admin", @event) %>
   <%= render partial: "admin_show" %>
-<% elsif current_user.has_role?("invitee") %>
+<% elsif current_user.has_role_for_event?("invitee", @event) %>
   <section class="distractful text-center">
     <% if @event.present? %>
       <% @event.images.each do |image| %>

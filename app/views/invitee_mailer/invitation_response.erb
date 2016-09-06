@@ -51,7 +51,7 @@
 
           <p style="margin: 0; font-size: 16px; margin-bottom: 15px;">I will come for <%= @invitee.number_response %> person(s)</p>
 
-          <% if @invitee.reception_response == true %>
+          <% if @invitee.reception_response == true && @invitee.number_response > 0 %>
             <div>
               <%= email_image_tag(@qrcode_png) %>
             </div>
