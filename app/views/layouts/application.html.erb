@@ -20,7 +20,7 @@
   </head>
 
   <body>
-    <% unless (params[:controller] == "events" && params[:action] == "show") || (params[:controller] == "invitees" && params[:action] == "update_response") %>
+    <% unless (params[:controller] == "events" && params[:action] == "show") || (params[:controller] == "invitees" && params[:action] == "invitation_response") %>
       <div class="row content" style="padding: 0 0 2% 0px;">
         <div class="large-12 columns">
     <% end%>
@@ -43,7 +43,7 @@
         <% end %>
 
         <%= yield %>
-    <% unless (params[:controller] == "events" && params[:action] == "show") || (params[:controller] == "invitees" && params[:action] == "update_response") %>
+    <% unless (params[:controller] == "events" && params[:action] == "show") || (params[:controller] == "invitees" && params[:action] == "invitation_response") %>
         </div><!-- .large-12.columns -->
       </div><!-- .row.content -->
     <% end %>

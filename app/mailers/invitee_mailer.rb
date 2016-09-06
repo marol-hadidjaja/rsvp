@@ -15,8 +15,17 @@ class InviteeMailer < ApplicationMailer
   def invitation_response(event, invitee)
     @event = event
     @invitee = invitee
-    @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_url(@invitee) }")
-    @qrcode_png = @qrcode.to_img.resize(200, 200).save("public/images/qrcode-#{ @invitee.id }.png")
+    @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }", size: 14, level: :h)
+    logger.debug "------------------------#{ @qrcode.inspect }"
+
+    # @qrcode_png = @qrcode.to_img.resize(200, 200).save("public/images/qrcode-#{ @invitee.id }.png")
+    @qrcode_png = @qrcode.to_img
+    logger.debug "------------------------#{ @qrcode_png.inspect }"
+
+    # @qrcode_png = @qrcode.to_img.resize(200, 200).save("public/images/qrcode-#{ @invitee.id }.png")
+    @qrcode_png = @qrcode_png.resize(200, 200).save("#{ Dir.home }/rsvp/public/images/qrcode-#{ @invitee.id }.png")
+    logger.debug "------------------------#{ @qrcode_png.inspect }"
+
     mail(to: @invitee.email, subject: @event.name)
   end
 end

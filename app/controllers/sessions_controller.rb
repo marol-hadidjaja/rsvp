@@ -4,11 +4,15 @@ class SessionsController < Devise::SessionsController
 
   def destroy
     event_id = session[:event_id]
+    user = current_user
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    set_flash_message! :notice, :signed_out if signed_out
     session[:event_id] = event_id
+    if user.has_role_for_event?('invitee', session[:event_id])
+      session[:user_return_to] = event_path(session[:event_id])
+    end
     redirect_to new_user_session_path
   end
+
   private
 
   def layout

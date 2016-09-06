@@ -19,8 +19,8 @@ include ApplicationHelper
 OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
 APPLICATION_NAME = 'Google Calendar API Ruby Quickstart'
 CLIENT_SECRETS_PATH = File.join(Dir.pwd, 'client_id-quickstart.json')
+# CLIENT_SECRETS_PATH = File.join(Dir.home, 'rsvp', 'client_id-quickstart-online.json')
 CREDENTIALS_PATH = File.join(Dir.home, '.credentials', "calendar-ruby-quickstart.json")
-#SCOPE = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email"
 SCOPE = ["https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/userinfo.email"]
 =begin
 client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
@@ -30,8 +30,6 @@ authorizer = Google::Auth::WebUserAuthorizer.new(client_id, scope, token_store, 
 =end
 
 class EventsController < ApplicationController
-  #before_action :setgoogleauth
-
   skip_before_filter :authenticate_user!, :only => :images
 
   def index
@@ -193,15 +191,15 @@ class EventsController < ApplicationController
   def show
     @event = Event.find(params[:id])
     session[:event_id] = @event.id
-    if current_user.has_role?("invitee")
+    if current_user.has_role_for_event?("invitee", @event)
       @invitee = Invitee.find_by_email(current_user.email)
       @numbers = []
-      0.upto(@invitee.number) do |number|
+      1.upto(@invitee.number) do |number|
         @numbers << number
       end
       @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
       @qrcode_png = @qrcode.to_img.resize(150, 150)
-    elsif current_user.has_role?("admin")
+    elsif current_user.has_role_for_event?("admin", @event)
       @ceremonial_response = Invitee.ceremonial_ok
       @reception_response = Invitee.reception_ok
     end
@@ -276,8 +274,14 @@ class EventsController < ApplicationController
           end
         end
         # redirect_to controller: "events", actions: "create"
+      elsif session[:new_attendees]
+        session[:new_attendees][:event_id] = session[:event_id]
+        @invitee = Invitee.where(session[:new_attendees]).first
+        @event = Event.find(session[:event_id])
+        InviteeMailer.invitation_email(@event, @invitee).deliver_now
+        redirect_to event_invitees_path(@event)
       else
-        redirect_to('/')
+        redirect_to event_invitees_path(session[:event_id])
       end
     end
 =begin

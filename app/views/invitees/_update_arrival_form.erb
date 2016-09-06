@@ -1,4 +1,5 @@
 <div class='update_form'>
-  <%= select_tag 'number_arrival', options_for_select(@numbers, @invitee.number_response) %>
+  <%#= select_tag 'number_arrival', options_for_select(@numbers, @invitee.number_response) %>
+  <%= number_field_tag 'number_arrival', nil, min: 1 %> (max: <%= @invitee.number_response.nil? ? @invitee.number : @invitee.number_response %>)
   <%= button_tag 'Confirm', class: 'confirm_arrival' %>
 </div>

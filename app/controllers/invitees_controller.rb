@@ -29,7 +29,7 @@ class InviteesController < ApplicationController
       # receptionist or admin
       @event = Event.find(params[:event_id])
       if params[:name].present?
-        @invitees = Event.find(params[:event_id]).invitees.where("name LIKE '%#{ params[:name] }%'")
+        @invitees = Event.find(params[:event_id]).invitees.where("LOWER(name) LIKE '%#{ params[:name].downcase }%'")
         render json: { html: render_to_string('_table', layout: false) }
       else
         @invitees = Event.find(params[:event_id]).invitees
@@ -91,7 +91,6 @@ class InviteesController < ApplicationController
         client.authorization = auth_client
 
         g_event = client.get_event('primary', @event.event_id)
-        # attendees = [ { email: 'a@b.com' } ]
         if session[:new_attendees]
           attendees = session[:new_attendees]
           session.delete(:new_attendees)
