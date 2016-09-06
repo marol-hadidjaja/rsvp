@@ -23,17 +23,30 @@ class InviteesController < ApplicationController
       else
         # have created event and will show all invitees
         @event = Event.find(params[:event_id])
-        @invitees = Event.find(params[:event_id]).invitees
+        @invitees = Event.find(params[:event_id])
+                         .invitees
+                         .order("LOWER(name) ASC")
       end
     else
       # receptionist or admin
       @event = Event.find(params[:event_id])
-      if params[:name].present?
-        @invitees = Event.find(params[:event_id]).invitees.where("LOWER(name) LIKE '%#{ params[:name].downcase }%'")
-        render json: { html: render_to_string('_table', layout: false) }
+      if params[:partial] == "true"
+        if params[:name].present?
+          @invitees = Event.find(params[:event_id])
+                           .invitees
+                           .where("LOWER(name) LIKE '%#{ params[:name].downcase }%'")
+                           .order("LOWER(name) ASC")
+          render json: { html: render_to_string('_table', layout: false) }
+        else
+          @invitees = Event.find(params[:event_id])
+                           .invitees
+                           .order("LOWER(name) ASC")
+          render json: { html: render_to_string('_table', layout: false) }
+        end
       else
-        @invitees = Event.find(params[:event_id]).invitees
-        # render json: { html: render_to_string('_table', layout: false) }
+        @invitees = Event.find(params[:event_id])
+                         .invitees
+                         .order("LOWER(name) ASC")
       end
     end
   end
@@ -80,6 +93,8 @@ class InviteesController < ApplicationController
       else
         @user = @users.first
         @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+        @user.password = @user.password_confirmation = @event.global_password
+        @user.save
       end
 
       unless session.has_key?(:credentials)
@@ -339,7 +354,8 @@ class InviteesController < ApplicationController
   def update_arrival_form
     @invitee = Invitee.find(params[:id])
     @numbers = []
-    1.upto(@invitee.number) do |number|
+    # 1.upto(@invitee.number) do |number|
+    0.upto(10) do |number|
       @numbers << number
     end
     # authorize! :update_arrival

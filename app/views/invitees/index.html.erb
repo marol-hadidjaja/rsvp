@@ -40,7 +40,7 @@
         url: '<%= event_invitees_path(@event) %>',
         method: 'GET',
         dataType: 'json',
-        data: { name: name },
+        data: { name: name, partial: true },
         success: function(result){
           $('#invitees-list').html(result.html)
         }

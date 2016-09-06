@@ -1,9 +1,7 @@
+<h4>Update Arrival</h4>
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @invitee.name %>
-</p>
+<h3><%= @invitee.name %></h3>
 
 <p>
   <strong>Relation:</strong>
@@ -11,13 +9,44 @@
 </p>
 
 <p>
-  <strong>Number:</strong>
+  <strong>Guest(s):</strong>
   <%= @invitee.number %>
 </p>
 
 <p>
   <strong>Email:</strong>
   <%= @invitee.email %>
+</p>
+
+<p>
+  <strong>Number response:</strong>
+  <%= @invitee.number_response ? @invitee.number_response : 0 %>
+</p>
+
+<p>
+  <strong>Ceremonial:</strong>
+  <% unless invitee.ceremonial_response.nil? %>
+    <% if invitee.ceremonial_response === true %>
+      <i class="fa fa-check" aria-hidden="true"></i>
+    <% else %>
+      <i class="fa fa-times" aria-hidden="true"></i>
+    <% end %>
+  <% else %>
+    <i class="fa fa-question" aria-hidden="true"></i>
+  <% end %>
+</p>
+
+<p>
+  <strong>Reception:</strong>
+  <% unless invitee.ceremonial_response.nil? %>
+    <% if invitee.ceremonial_response === true %>
+      <i class="fa fa-check" aria-hidden="true"></i>
+    <% else %>
+      <i class="fa fa-times" aria-hidden="true"></i>
+    <% end %>
+  <% else %>
+    <i class="fa fa-question" aria-hidden="true"></i>
+  <% end %>
 </p>
 
 <p>
