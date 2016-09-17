@@ -5,7 +5,7 @@
         <th class="invitee-name">Name</th>
         <th class="invitee-relation">Relation</th>
         <th class="invitee-guest">Guest(s)</th>
-        <th class="invitee-email">Email</th>
+        <th><p class="invitee-email">Email</p></th>
         <th class="invitee-number-response">Number response</th>
         <th class="invitee-ceremonial-response">Ceremonial</th>
         <th class="invitee-reception-response">Reception</th>
@@ -29,7 +29,7 @@
           </td>
           <td class="invitee-relation"><%= invitee.relation %></td>
           <td class="invitee-guest"><%= invitee.number %></td>
-          <td class="invitee-email"><%= invitee.email %></td>
+          <td><p class="invitee-email"><%= invitee.email %></p></td>
           <td class="invitee-number-response">
             <% if invitee.number_response.nil? %>
               <i class="fa fa-question" aria-hidden="true"></i>

@@ -28,8 +28,8 @@
 
 <p>
   <strong>Ceremonial:</strong>
-  <% unless @invitee.ceremonial_response.nil? %>
-    <% if @invitee.ceremonial_response === true %>
+  <% unless invitee.ceremonial_response.nil? %>
+    <% if invitee.ceremonial_response === true %>
       <i class="fa fa-check" aria-hidden="true"></i>
     <% else %>
       <i class="fa fa-times" aria-hidden="true"></i>
@@ -41,8 +41,8 @@
 
 <p>
   <strong>Reception:</strong>
-  <% unless @invitee.ceremonial_response.nil? %>
-    <% if @invitee.ceremonial_response === true %>
+  <% unless invitee.reception_response.nil? %>
+    <% if invitee.reception_response === true %>
       <i class="fa fa-check" aria-hidden="true"></i>
     <% else %>
       <i class="fa fa-times" aria-hidden="true"></i>
@@ -50,6 +50,16 @@
   <% else %>
     <i class="fa fa-question" aria-hidden="true"></i>
   <% end %>
+</p>
+
+<p>
+  <strong>Address:</strong>
+  <%= @invitee.address %>
+</p>
+
+<p>
+  <strong>Phone:</strong>
+  <%= @invitee.phone %>
 </p>
 
 <% unless @invitee.number_arrival.nil? %>
