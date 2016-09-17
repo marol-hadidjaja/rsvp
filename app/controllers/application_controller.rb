@@ -6,6 +6,12 @@ class ApplicationController < ActionController::Base
   before_filter :store_location
   before_action :authenticate_user!
 
+  rescue_from CanCan::AccessDenied do |exception|
+    logger.debug "---------------------#{ exception.inspect }"
+    render :file => "#{Rails.root}/public/403.html", :status => 403, :layout => false
+    # redirect_to exception.redirect_path, :alert => exception.message
+  end
+
   def store_location
     unless params[:controller] == "sessions"
       if params[:controller] == "events"
@@ -21,6 +27,12 @@ class ApplicationController < ActionController::Base
         # /?event_id=1
         if params[:event_id].present?
           session[:event_id] = params[:event_id]
+        end
+
+        if params[:controller] == "invitees"
+          if params[:action] == "update_arrival_form"
+            session[:event_id] = Invitee.find(params[:id]).event_id
+          end
         end
       end
     end

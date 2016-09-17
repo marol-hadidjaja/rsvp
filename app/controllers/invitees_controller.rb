@@ -54,6 +54,11 @@ class InviteesController < ApplicationController
   # GET /invitees/1
   # GET /invitees/1.json
   def show
+    # for update arrival (Receptionist)
+    @numbers = []
+    1.upto(10) do |number|
+      @numbers << number
+    end
   end
 
   # GET /invitees/new
@@ -291,10 +296,10 @@ class InviteesController < ApplicationController
   end
 
   def export
-    @invitees = Invitee.all
+    @invitees = Invitee.where(event_id: session[:event_id]).order("LOWER(name) ASC")
 
     respond_to do |format|
-      format.csv { send_data @invitees.to_csv, filename: "invitees-#{Date.today}.csv" }
+      format.csv { send_data Invitee.to_csv(@invitees), filename: "invitees-#{Date.today}.csv" }
     end
   end
 
@@ -323,12 +328,14 @@ class InviteesController < ApplicationController
     end
   end
 
+  # POST /invitees/:id/:update_response
+  # action after user click button CONFIRM in events#show
   def update_response
     @invitee = Invitee.find(params[:id])
+    authorize! :update_response, @invitee
     attrs_before = @invitee.attributes
     @event = @invitee.event
 
-    # authorize! :update_response
     if @invitee.update(invitee_params)
       unless @invitee.attributes.eql?(attrs_before)
         InviteeMailer.invitation_response(@event, @invitee).deliver_now
@@ -343,8 +350,10 @@ class InviteesController < ApplicationController
     end
   end
 
+  # show page after invitee confirm attendance in ceremonial and reception with number of response (how many guests)
   def invitation_response
     @invitee = Invitee.find(params[:id])
+    authorize! :invitation_response, @invitee
     @event = @invitee.event
     @qrcode = RQRCode::QRCode.new("#{ domain }#{ update_arrival_invitee_path(@invitee) }")
     @qrcode_png = @qrcode.to_img.resize(150, 150)
@@ -353,12 +362,12 @@ class InviteesController < ApplicationController
   # from QR Code
   def update_arrival_form
     @invitee = Invitee.find(params[:id])
+    authorize! :update_arrival_form, @invitee
+
     @numbers = []
-    # 1.upto(@invitee.number) do |number|
     0.upto(10) do |number|
       @numbers << number
     end
-    # authorize! :update_arrival
     if params[:partial] === 'true'
       respond_to do |format|
         format.json { render json: { html: render_to_string('_update_arrival_form', layout: false) } }
@@ -373,6 +382,13 @@ class InviteesController < ApplicationController
   # action on CONFIRM number of persons in arrival
   def update_arrival
     @invitee = Invitee.find(params[:id])
+    authorize! :update_arrival, @invitee
+
+    @numbers = []
+    0.upto(10) do |number|
+      @numbers << number
+    end
+
     if @invitee.update(invitee_params)
       respond_to do |format|
         format.json { render json: { email: @invitee.email, name: @invitee.name, relation: @invitee.relation, message: "Update success" } }

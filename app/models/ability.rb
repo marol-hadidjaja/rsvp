@@ -1,7 +1,7 @@
 class Ability
   include CanCan::Ability
 
-  def initialize
+  def initialize(user)
     @user = user || User.new # for guest
     @user.roles.each { |role| send(role.name.downcase) }
 
@@ -17,10 +17,10 @@ class Ability
   end
 
   def receptionist
-
+    can [:update_arrival_form, :update_arrival], Invitee
   end
 
   def invitee
-
+    can [:invitation_response, :update_response], Invitee
   end
 end

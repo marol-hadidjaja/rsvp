@@ -5,7 +5,10 @@
         <h2 style="display: inline;"><%= @event.name %></h2>
         <% if current_user.has_role_for_event?("admin", @event) %>
           <%= link_to 'Edit Event', edit_event_path(@event), style: "display: inline;" %>
-          <p style="float: right; display: inline; margin-top: 20px;">Total Guest: <strong><%= @event.total_invitees %> People</strong></p>
+        <% end %>
+        <% unless current_user.has_role_for_event?("invitee", @event) %>
+          <p style="float: right; display: inline; margin-top: 20px;">Total Guest Response: <strong><%= @event.total_invitees_response %> People</strong></p>
+          <p style="float: right; display: inline; margin-top: 20px;">Total Guest Arrival: <strong><%= @event.total_invitees_arrival %> People</strong></p>
         <% end %>
       </div>
     </div>

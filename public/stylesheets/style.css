@@ -120,6 +120,14 @@ body.distractful-body{overflow-x:hidden }
 }
 .distractful-pager.active{background-color: rgba(255,255,255,.3);}
 
+@media screen and (max-width: 875px){
+  .invitee-guest{ display: none; }
+}
+
+@media screen and (max-width: 760px){
+  .invitee-ceremonial-response, .invitee-reception-response{ display: none; }
+}
+
 @media screen and (max-width: 600px){
   .input input[type="text"] { height: 2rem; }
   .input form{ padding: 4% 3% }
@@ -128,6 +136,10 @@ body.distractful-body{overflow-x:hidden }
     padding: 0.5rem;
     margin-bottom: 5px;
   }
+}
+
+@media screen and (max-width: 550px){
+  .invitee-relation, .invitee-number-response{ display: none; }
 }
 
 @media screen and (max-width: 500px){
@@ -142,7 +154,21 @@ body.distractful-body{overflow-x:hidden }
   }
 }
 
+@media screen and (max-width: 450px){
+p.invitee-email {
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+}
+
 @media screen and (max-width: 400px){
+p.invitee-email{ font-size: 12px; width: 120px; }
+}
+
+@media screen and (max-width: 350px){
+p.invitee-email{ width: 60px;}
 }
 
 .content{ padding: 0 0 2% 0; }

@@ -14,13 +14,13 @@ class Invitee < ActiveRecord::Base
     !self.number.nil? && self.number > 0
   end
 
-  def self.to_csv
-    attributes = %w{id email name number relation ceremonial_response reception_response number_of_response number_of_arrival}
+  def self.to_csv(invitees)
+    attributes = %w{id name email number relation ceremonial_response reception_response number_response number_arrival}
 
     CSV.generate(headers: true) do |csv|
-      csv << attributes
+      csv << %W{ID Name Email Guests Relation #{"Ceremonial Response"} #{"Reception Response"} #{"Number Response"} #{"Number Arrival"}}
 
-      all.each do |user|
+      invitees.each do |user|
         csv << attributes.map{ |attr| user.send(attr) }
       end
     end
