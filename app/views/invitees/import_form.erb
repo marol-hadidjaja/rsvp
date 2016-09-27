@@ -18,9 +18,14 @@
   <%= @error %>
 <% end %>
 
+Format header pada file excel: <strong>Nama</strong>, <strong>Email</strong>, <strong>Relasi</strong>, <strong>Jumlah</strong>,
+<strong>Alamat</strong>, dan <strong>Telepon</strong>
 <%= form_tag(event_invitees_import_path(@event), :multipart => true) do %>
   <%= check_box_tag :email_present, 'true' %>
   <%= label :invitee, :email, "Email present?" %>
   <%= file_field_tag(:invitees) %>
-  <%= submit_tag('Import') %>
+  <%= submit_tag('Import', class: "button",
+                 style: "border: none; text-transform: uppercase; color: white; font-weight: bold; line-height: inherit;") %>
 <% end %>
+<%= link_to 'Back', event_invitees_path(@event),
+      class: "button", style: "text-transform: uppercase; font-weight: bold; line-height: inherit;" %>

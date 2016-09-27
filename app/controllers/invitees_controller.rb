@@ -19,34 +19,43 @@ class InviteesController < ApplicationController
       # really a new user to RSVP
       if Event.where(user_id: current_user.id).empty?
         # have not created any events
-        redirect_to new_event_path
+        # redirect_to new_event_path
+        invitee = Invitee.where(email: current_user.email).order("created_at DESC").first
+        redirect_to event_invitees_path(invitee.event_id)
       else
         # have created event and will show all invitees
         @event = Event.find(params[:event_id])
         @invitees = Event.find(params[:event_id])
                          .invitees
-                         .order("LOWER(name) ASC")
+                         .order("LOWER(name) ASC, number_arrival DESC")
+                         .sort_by{ |invitee| invitee.number_arrival.to_i }
+        @relations = @invitee.map(&:relation).uniq.sort
+        @relations.unshift('---Select relation---')
       end
     else
       # receptionist or admin
       @event = Event.find(params[:event_id])
       if params[:partial] == "true"
-        if params[:name].present?
-          @invitees = Event.find(params[:event_id])
-                           .invitees
-                           .where("LOWER(name) LIKE '%#{ params[:name].downcase }%'")
-                           .order("LOWER(name) ASC")
-          render json: { html: render_to_string('_table', layout: false) }
-        else
-          @invitees = Event.find(params[:event_id])
-                           .invitees
-                           .order("LOWER(name) ASC")
-          render json: { html: render_to_string('_table', layout: false) }
+        @invitees = Event.find(params[:event_id])
+                         .invitees
+        if params[:relation].present?
+          @invitees = @invitees.where("LOWER(relation) = '#{ params[:relation].downcase }'")
         end
+
+        if params[:name].present?
+          @invitees = @invitees.where("LOWER(name) LIKE '%#{ params[:name].downcase }%'")
+        end
+
+        @invitees = @invitees.order("LOWER(name) ASC, number_arrival ASC")
+                             .sort_by{ |invitee| invitee.number_arrival.to_i }
+        render json: { html: render_to_string('_table', layout: false) }
       else
         @invitees = Event.find(params[:event_id])
                          .invitees
                          .order("LOWER(name) ASC")
+                         .sort_by{ |invitee| invitee.number_arrival.to_i }
+        @relations = @invitees.map(&:relation).uniq.sort
+        @relations.unshift('---Select relation---')
       end
     end
   end
@@ -236,8 +245,15 @@ class InviteesController < ApplicationController
             row = Hash[[new_header, spreadsheet.row(i)].transpose]
             row["event_id"] = @event.id
             if params[:email_present] === "true"
-              invitee = Invitee.find_by_email(row["email"]) || Invitee.new(row.reject{ |k, r| k.nil? })
+              invitee = Invitee.where(email: row["email"], event_id: @event.id).first || Invitee.new(row.reject{ |k, r| k.nil? })
               invitee.attributes = row.reject{ |k, r| k == "email" || k.nil? } unless invitee.new_record?
+              # invitee.ceremonial_response = invitee.reception_response = invitee.number_response = invitee.number_arrival = nil
+
+              if invitee.new_record?
+                invitation_email = true
+              else
+                invitation_email = false
+              end
 
               unless invitee.save
                 @result_import[:errors] << { email: row['email'], errors: invitee.errors.messages }
@@ -251,10 +267,15 @@ class InviteesController < ApplicationController
                   @user = User.create(email: row['email'], password: @event.global_password, password_confirmation: @event.global_password)
                   @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
                   # logger.debug "-------------------------------------error : #{ @user.errors.inspect }"
-                  InviteeMailer.invitation_email(@event, invitee).deliver
                 else
                   @user = @users.first
                   @event.user_roles.create(role: Role.find_by_name("invitee"), user: @user)
+                  @user.password = @user.password_confirmation = @event.global_password
+                  @user.save
+                end
+
+                if invitation_email == true
+                  InviteeMailer.invitation_email(@event, invitee).deliver
                 end
               end # check invitee.save
             else
@@ -275,11 +296,16 @@ class InviteesController < ApplicationController
           client.authorization = auth_client
 
           g_event = client.get_event('primary', @event.event_id)
-          g_event.attendees = @result_import[:success]
+          # g_event.attendees = @result_import[:success]
+          attendees = @result_import[:success]
+          g_event.attendees = [] if g_event.attendees.nil?
+          attendees.each do |attendee|
+            g_event.attendees.push(attendee)
+          end
 
           # send_notifications: true
           result = client.patch_event('primary', g_event.id, g_event)
-          print result.updated
+          # print result.updated
         end
 
         respond_to do |format|
@@ -299,7 +325,7 @@ class InviteesController < ApplicationController
     @invitees = Invitee.where(event_id: session[:event_id]).order("LOWER(name) ASC")
 
     respond_to do |format|
-      format.csv { send_data Invitee.to_csv(@invitees), filename: "invitees-#{Date.today}.csv" }
+      format.csv { send_data Invitee.to_csv(@invitees), filename: "invitees-#{ Date.today }.csv" }
     end
   end
 
@@ -392,7 +418,7 @@ class InviteesController < ApplicationController
     if @invitee.update(invitee_params)
       respond_to do |format|
         format.json { render json: { email: @invitee.email, name: @invitee.name, relation: @invitee.relation, message: "Update success" } }
-        format.html { redirect_to event_invitees_path(@invitee.event) }
+        format.html { redirect_to event_invitees_path(@invitee.event), notice: "Invitee <strong>#{ @invitee.id }</strong> arrival updated" }
       end
     else
       respond_to do |format|
@@ -448,10 +474,13 @@ class InviteesController < ApplicationController
         params[:invitee][:ceremonial_response] = false unless params[:invitee][:ceremonial_response].present?
         params[:invitee][:reception_response] = false unless params[:invitee][:reception_response].present?
         params[:invitee][:number_response] = 0 if !params[:invitee][:ceremonial_response].present? && !params[:invitee][:reception_response].present?
+      elsif params[:action] == "update_arrival"
+        params[:invitee][:receptionist_id] = current_user.id
       end
+
       params.require(:invitee)
         .permit(:event_id, :name, :relation, :number, :email, :address, :phone, :ceremonial_response, :reception_response,
-                :number_response, :number_arrival)
+                :number_response, :number_arrival, :receptionist_id)
 
     end
 

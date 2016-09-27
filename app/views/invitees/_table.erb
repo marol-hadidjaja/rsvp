@@ -18,10 +18,12 @@
     </thead>
 
     <tbody>
+      <% has_admin_role = current_user.has_role_for_event?("admin", @event) %>
+      <% has_receptionist_role = current_user.has_role_for_event?("receptionist", @event) %>
       <% @invitees.each do |invitee| %>
         <tr>
           <td class="invitee-name">
-            <% if current_user.has_role_for_event?("admin", @event) %>
+            <% if has_admin_role %>
               <%= link_to invitee.name, "#", "data-reveal-id": "invitee-#{ invitee.id }-modal" %>
             <% else %>
               <%= link_to invitee.name, invitee_path(invitee) %>
@@ -62,7 +64,7 @@
             <% end %>
           </td>
 
-          <% if current_user.has_role_for_event?("admin", @event) %>
+          <% if has_admin_role %>
             <td class="invitation-status">
               <% if invitee.number_response.present? %>
                 invitee already response
@@ -71,7 +73,7 @@
               <% end %>
             </td>
             <td class="invitation-resend"><%= link_to 'Resend', invitees_resend_invitation_invitee_path(invitee) %></td>
-          <% elsif current_user.has_role_for_event?("receptionist", @event) %>
+          <% elsif has_receptionist_role %>
             <% if invitee.number_arrival.nil? %>
               <td class="invitation-status">-
                 <%#= link_to 'Update Arrival', '#', class: 'update-arrival', "data-invitee-id": invitee.id %>
@@ -82,7 +84,7 @@
           <% end %>
         </tr>
 
-        <% if current_user.has_role_for_event?("admin", @event) %>
+        <% if has_admin_role %>
           <div id="invitee-<%= invitee.id %>-modal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
             <h2 id="modalTitle"><%= invitee.name %></h2>
             <p>

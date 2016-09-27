@@ -15,7 +15,7 @@
   </div>
 <% end %>
 
-<p id="notice"><%= notice %></p>
+<p id="notice"><%= notice.nil? ? '' : notice.html_safe %></p>
 
 <% if current_user.has_role_for_event?("admin", @event) %>
   <div class="row">
@@ -30,6 +30,7 @@
 <% end %>
 
 <%= text_field_tag 'search_name', nil, placeholder: "Search by Name" %>
+<%= select_tag 'filter_relation', options_for_select(@relations) %>
 
 <div id='invitees-list'>
   <%= render partial: 'table' %>
@@ -38,17 +39,42 @@
 <script>
   $(document).ready(function(){
     $('#search_name').on('input', function(e){
-      var name = $(this).val();
+      var name = $(this).val(),
+        relation = $('#filter_relation').val(),
+        params = { name: name, partial: true };
+
+      if(relation != '---Select relation---')
+        params.relation = relation;
+      else
+        params.relation = '';
+
       $.ajax({
         url: '<%= event_invitees_path(@event) %>',
         method: 'GET',
         dataType: 'json',
-        data: { name: name, partial: true },
+        data: params,
         success: function(result){
-          $('#invitees-list').html(result.html)
+          $('#invitees-list').html(result.html);
         }
       });
-    })
+    });
+
+    $('#filter_relation').change(function(e){
+      var relation = $(this).val();
+      $('#search_name').val('').focus();
+      if(relation == '---Select relation---')
+        relation = '';
+
+      $.ajax({
+        url: '<%= event_invitees_path(@event) %>',
+        method: 'GET',
+        dataType: 'json',
+        data: { relation: relation, partial: true },
+        success: function(result){
+          $('#invitees-list').html(result.html);
+        }
+      });
+    });
 
     $('#invitees-list').on('click', '.update-arrival', function(e){
       var $td = $(this).parents('td'),

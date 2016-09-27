@@ -192,7 +192,7 @@ class EventsController < ApplicationController
     @event = Event.find(params[:id])
     session[:event_id] = @event.id
     if current_user.has_role_for_event?("invitee", @event)
-      @invitee = Invitee.find_by_email(current_user.email)
+      @invitee = Invitee.where(email: current_user.email, event_id: @event)
       @numbers = []
       1.upto(@invitee.number) do |number|
         @numbers << number

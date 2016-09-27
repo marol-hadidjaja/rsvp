@@ -6,6 +6,9 @@
 
 <h3><%= @invitee.name %> <span style="font-size: 18px; font-weight: bold; color: #1585cf">ID: <%= "i#{ @invitee.id }" %></span></h3>
 
+<% unless @invitee.number_arrival.nil? %>
+  <u>Invitee already updated by <%= @invitee.user.email %></u>
+<% end %>
 <p>
   <strong>Relation:</strong>
   <%= @invitee.relation %>
@@ -16,10 +19,12 @@
   <%= @invitee.number %>
 </p>
 
-<p>
-  <strong>Email:</strong>
-  <%= @invitee.email %>
-</p>
+<% unless @invitee.email.present? %>
+  <p>
+    <strong>Email:</strong>
+    <%= @invitee.email %>
+  </p>
+<% end %>
 
 <p>
   <strong>Number response:</strong>
@@ -28,8 +33,8 @@
 
 <p>
   <strong>Ceremonial:</strong>
-  <% unless invitee.ceremonial_response.nil? %>
-    <% if invitee.ceremonial_response === true %>
+  <% unless @invitee.ceremonial_response.nil? %>
+    <% if @invitee.ceremonial_response === true %>
       <i class="fa fa-check" aria-hidden="true"></i>
     <% else %>
       <i class="fa fa-times" aria-hidden="true"></i>
@@ -41,8 +46,8 @@
 
 <p>
   <strong>Reception:</strong>
-  <% unless invitee.reception_response.nil? %>
-    <% if invitee.reception_response === true %>
+  <% unless @invitee.reception_response.nil? %>
+    <% if @invitee.reception_response === true %>
       <i class="fa fa-check" aria-hidden="true"></i>
     <% else %>
       <i class="fa fa-times" aria-hidden="true"></i>
@@ -52,35 +57,40 @@
   <% end %>
 </p>
 
-<p>
-  <strong>Address:</strong>
-  <%= @invitee.address %>
-</p>
+<% if @invitee.address.present? %>
+  <p>
+    <strong>Address:</strong>
+    <%= @invitee.address %>
+  </p>
+<% end %>
 
+<% if @invitee.phone.present? %>
 <p>
   <strong>Phone:</strong>
   <%= @invitee.phone %>
 </p>
+<% end %>
 
 <% unless @invitee.number_arrival.nil? %>
   <p>
     <strong>Arrival:</strong>
     <%= @invitee.number_arrival %>
   </p>
-<% else %>
-  <%= form_tag update_arrival_invitee_path(@invitee) do %>
-    <strong>Arrival:</strong>
-    <div class="row">
-      <div class="large-6 columns">
-        <%= select_tag 'invitee[number_arrival]', options_for_select(@numbers, @invitee.number_response) %>
-      </div>
-      <div class="large-6 columns">
-        <%= submit_tag "CONFIRM", class: "button", style: "border: none; text-transform: uppercase;
-                                                           color: white; font-weight: bold; line-height: inherit;" %>
-      </div>
+<% end %>
+
+<%= form_tag update_arrival_invitee_path(@invitee) do %>
+  <strong>Arrival:</strong>
+  <div class="row">
+    <div class="large-6 columns">
+      <%= select_tag 'invitee[number_arrival]', options_for_select(@numbers, @invitee.number_response) %>
     </div>
-  <% end %>
-  <div class="button" style="border: none; background-color: grey; font-weight: bold; line-height: inherit;">
-    <%= link_to "Back to list", event_invitees_path(@invitee.event), style: "color: white; text-transform: uppercase;" %>
+    <div class="large-6 columns">
+      <%= submit_tag "CONFIRM", class: "button", style: "border: none; text-transform: uppercase;
+                                                         color: white; font-weight: bold; line-height: inherit;" %>
+    </div>
   </div>
 <% end %>
+
+<div class="button" style="border: none; background-color: grey; font-weight: bold; line-height: inherit;">
+  <%= link_to "Back to list", event_invitees_path(@invitee.event), style: "color: white; text-transform: uppercase;" %>
+</div>

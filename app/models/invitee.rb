@@ -1,5 +1,6 @@
 class Invitee < ActiveRecord::Base
   belongs_to :event
+  belongs_to :user, foreign_key: :receptionist_id
   # belongs_to :user, dependent: :destroy
   # validates_presence_of     :email, :name, :number, :relation
   validates_presence_of     :name, :number, :relation
